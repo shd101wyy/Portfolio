@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Portfolio</title>
+        <meta charset="utf-8">
+        <meta name="author" content="Yiyi Wang ywang189">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="css/metro-bootstrap.min.css">
+        <link rel="stylesheet" href="css/metro-bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/iconFont.min.css">
+        <link rel="stylesheet" href="css/index.css">
+
+        <script src="js/jquery.min.js"></script>
+        <script src="js/jquery.widget.min.js"></script>
+        <script src="js/metro.min.js"></script>
+    </head>
+    <body class="metro">
+        <h1  id="Portfolio_header"> Portfolio </h1>
+        <div id="login_panel">
+            <div class="grid">
+                <div id="outer">
+                    <div  id="inner">
+                        <!--
+                            Login Form
+                        -->
+                        <div id="login_form">
+                            <form>
+                                <fieldset>
+                                    <legend>
+                                        Login
+                                    </legend>
+                                    <!-- User Name -->
+                                    <label> User Name</label>
+                                    <div class="input-control text" data-role="input-control">
+                                        <input type="text" placeholder="enter your svn user name here">
+                                        <button class="btn-clear" tabindex="-1" type="button"></button>
+                                    </div>
+
+                                    <!-- Uesr Password -->
+                                    <label> User Password</label>
+                                    <div class="input-control password" data-role="input-control">
+                                        <input type="password" placeholder="enter your svn password here">
+                                        <button class="btn-reveal" tabindex="-1" type="button"></button>
+                                    </div>
+
+                                    <!-- svn address -->
+                                    <label> SVN Address</label>
+                                    <div class="input-control text" data-role="input-control">
+                                        <input type="text" placeholder="enter your svn address here">
+                                        <button class="btn-clear" tabindex="-1" type="button"></button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                type: "POST",
+                url: "/UserLogin",
+                async: false,
+                data: {
+                    user_name: "Yiyi",
+                    user_password: "HsjWghW11",
+                    user_svn_address: "https://subversion.ews.illinois.edu/svn/sp15-cs242/ywang189"
+                }
+            }).done(function(data){
+                console.log("Done: " +data);
+            }).fail(function(data){
+                console.log("Fail");
+            });
+        });
+    </script>
+</html>
