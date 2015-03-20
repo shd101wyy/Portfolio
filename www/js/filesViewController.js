@@ -192,30 +192,58 @@ function generateDivObjectForFile(file_info){
 }
 
 /**
+ * Extend String prototype to check suffix
+ */
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
+// refered from http://stackoverflow.com/questions/14915058/how-to-display-binary-data-as-image-extjs-4
+function hexToBase64(str) {
+    return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
+}
+
+/**
  * Clicked file tile
  */
 function clickFileTile(file_data){
-    $("#files_view").html("");
-    // create back tile
-    createBackTile(file_data.parent);
-
     // show file info
     showFileInfo(file_data);
+
+    var file_name = file_data.single_name;
 
     // show file content
     socket.emit("query_file", {file_name: file_data.name, user_id: user_id});
 
     // get file content
     socket.on("query_file_success", function(data){
-        // show data in ace editor
-        var editor = $("<div></div>").attr({"id": "editor"}).css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
-        $("#files_view").append(editor);
-        var ace_editor = ace.edit("editor");
-        var modelist = ace.require('ace/ext/modelist'); // use mode list to auto select language mode
-        var mode = modelist.getModeForPath(file_data.name).mode;
-        ace_editor.session.setMode(mode);
-        ace_editor.setValue(data);
-        ace_editor.setReadOnly(true); // dont allow to change the content
+        // Check pictures
+        if (file_name.endsWith(".png") || file_name.endsWith(".gif" || file_name.endsWith(".jpeg") || file_name.endsWith(".jpg"))){
+            $("#files_view").html("");
+            // create back tile
+            createBackTile(file_data.parent);
+            var image_div = $("<img></img>")
+                .attr({
+                       // "src": 'data:image/png;base64,' + hexToBase64(data)
+                       "src": "https://subversion.ews.illinois.edu/svn/sp15-cs242/ywang189/" + file_data.name
+                       })
+                .css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
+            $("#files_view").append(image_div);
+        }
+        else{
+            $("#files_view").html("");
+            // create back tile
+            createBackTile(file_data.parent);
+            // show data in ace editor
+            var editor = $("<div></div>").attr({"id": "editor"}).css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
+            $("#files_view").append(editor);
+            var ace_editor = ace.edit("editor");
+            var modelist = ace.require('ace/ext/modelist'); // use mode list to auto select language mode
+            var mode = modelist.getModeForPath(file_data.name).mode;
+            ace_editor.session.setMode(mode);
+            ace_editor.setValue(data);
+            ace_editor.setReadOnly(true); // dont allow to change the content
+        }
 
     });
 
@@ -227,6 +255,7 @@ function clickFileTile(file_data){
             timeout: 10000 // 10 seconds
         });
     });
+
 }
 
 /*
