@@ -91,8 +91,7 @@ io.on("connection", function(socket){
 
     // user get data
     socket.on("get_data", function(user_id){
-        console.log(user_data[user_id]);
-        socket.emit("get_data_success", [user_data[user_id].log_json, user_data[user_id].list_json]);
+        socket.emit("get_data_success", user_data[user_id]);
     });
 });
 
