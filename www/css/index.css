@@ -34,7 +34,8 @@ img {
 }
 
 #login_form{
-    border: 1px solid;
+    border: 2px solid;
+    border-color: #c9d39c;
     /*box-shadow: 5px 5px 2px #888888;*/
     padding: 30px;
     width: 360px;
