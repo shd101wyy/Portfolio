@@ -44,14 +44,14 @@ function cleanListJSON(list_json){
      * }
      */
     var home_directory = new File({
-        name: ".",
+        name: "/" + user_name,
         kind: "dir",
         size: "undefined",
         commit_revision: "undefined",
         commit_author: "undefined",
         commit_date: "undefined",
-        parent: null,
-        single_name: "."
+        parent: ".",
+        single_name: "/ywang189"
     });
     list_json = list_json.lists.list[0].entry;
     /**

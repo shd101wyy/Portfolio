@@ -61,6 +61,7 @@
     <script>
         var socket;  // global variable socket.
         var user_id; // global variable user id
+        var user_name; // global variable user name
         var LOG;     // gloabl variable LOG
         $(document).ready(function(){
             /**
@@ -104,7 +105,7 @@
 
             socket = io(); // initialize socketio.
             var data = parseURLParameters();
-            var user_name = data.user_name;
+            user_name = data.user_name;
             user_id = data.socket_id;
             $("#user_name_header").text("Hi,  " + user_name);
 

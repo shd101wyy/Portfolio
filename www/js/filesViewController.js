@@ -2,9 +2,9 @@
  * Show file information on the right side
  */
 function showFileInfo(file){
-    // console.log(file);
-    if (file.name === "."){
-        $("#info_name").text("Home Directory .");
+    // home directory
+    if (file.name === "/" + user_name){
+        $("#info_name").text("Home Directory /" + user_name);
         $("#info_path").text("Portfolio by Yiyi Wang ywang189");
         $("#info_kind").text("Projects are listed on the left side");
         $("#info_size").text("");
@@ -35,7 +35,6 @@ function showFileInfo(file){
     else{
         $("#info_commit_msg").text("");
     }
-
 }
 
 /**
