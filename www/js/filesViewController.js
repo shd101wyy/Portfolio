@@ -1,5 +1,5 @@
 /**
- * Show file information
+ * Show file information on the right side
  */
 function showFileInfo(file){
     // console.log(file);
@@ -93,16 +93,23 @@ String.prototype.endsWith = function(suffix) {
 };
 
 // refered from http://stackoverflow.com/questions/14915058/how-to-display-binary-data-as-image-extjs-4
+/*
 function hexToBase64(str) {
     return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
 }
+*/
 
 /**
  * Clicked file tile
+ * Show its information
  */
 function clickFileTile(file_data){
     // show file info
     showFileInfo(file_data);
+
+    // show commit list
+    showCommitList(file_data);
+
 
     var file_name = file_data.single_name;
 
@@ -175,9 +182,53 @@ function createBackTile(parent){
 }
 
 /**
+ * Show a list of commit messages
+ */
+function showCommitList(file_data){
+    $("#commit_list").html(""); // clear everything
+    var file_name = file_data.name;
+    var log = LOG.file_name_dict;
+    if (file_name in log){
+        console.log("In");
+        var commit_list = log[file_name];
+
+        /*
+            element in commit_list is like
+            {
+                action:
+                author:
+                date:
+                msg:
+                path:
+                revision:
+            }
+         */
+        for(var i = 0; i < commit_list.length; i++){
+            var element = commit_list[i];
+            var li = $("<li></li>");
+            var revision = $("<strong></strong>").text("Revision: " + element.revision);
+            var date = $("<p></p>").text("Date: " + element.date);
+            var author = $("<p></p>").text("Author: " + element.author);
+            var action = $("<p></p>").text("Action: " + element.action);
+            var path = $("<p></p>").text("Path: " + element.path);
+            var msg = $("<p></p>").text("Msg: " + element.msg);
+
+            li.append(revision);
+            li.append(date);
+            li.append(author);
+            li.append(action);
+            li.append(path);
+            li.append(msg);
+            $("#commit_list").append(li);
+        }
+    }
+}
+
+/**
  * Generate file list tree
  * tree id: file_list_tree
  *
+ * The tile is like:
  * <div class="tile bg-cyan">
      <div class="brand bg-dark opacity">
          <span class="text">
@@ -203,4 +254,7 @@ function createBackTile(parent){
 
      // show file info
      showFileInfo(file_data);
+
+     // show commit info
+     showCommitList(file_data);
  }

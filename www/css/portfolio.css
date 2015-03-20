@@ -20,10 +20,23 @@ body{
     overflow: auto;
 }
 
-#file_information{
+#file_information_container{
     margin:0;
     padding:0;
     float:right;
     width:35%;
     height: 100%;
+    overflow: hidden;
+}
+#file_information{
+    width: 90%;
+    height: 50%;
+
+    overflow: auto;
+}
+
+#commit_list{
+    width: 90%;
+    height: 45%;
+    overflow: auto;
 }

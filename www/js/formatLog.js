@@ -13,6 +13,7 @@ function Log(info){
 // clean xml2js generated JSON file
 function cleanLogJSON(log_json){
     var output = {};  // revision number is the key
+    var file_name_dict = {}; // file name is the key
     var info;
     log_json = log_json.log.logentry;
     /**
@@ -55,7 +56,30 @@ function cleanLogJSON(log_json){
             msg: element.msg[0],
             path: element.paths[0].path
         };
-        output[element.$.revision] = new Log(info);
+        var log = new Log(info);
+        output[element.$.revision] = log;
+
+        // check single file
+        var path = element.paths[0].path;
+        for (var j = 0; j < path.length; j++){
+            var e = path[j];
+            var file_name = e._;
+            file_name = file_name.slice(file_name.indexOf("/", 2) + 1); // remove /ywang189/
+            if (!(file_name in file_name_dict)){
+                file_name_dict[file_name] = [];
+            }
+            file_name_dict[file_name].push({
+                revision: element.$.revision,
+                author: element.author[0],
+                date: element.date[0],
+                msg: element.msg[0],
+                path: e._,
+                action: e.$.action
+            });
+            // add to file_name_dict
+
+        }
     }
+    output.file_name_dict = file_name_dict; // save file_name_dict to output
     return output;
 }
