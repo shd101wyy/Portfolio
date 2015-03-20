@@ -28,5 +28,22 @@ User.prototype.queryList = function(){
         });
 };
 
+
+/*
+    given file name like Chess/Chess.iml
+    return its content
+*/
+User.prototype.queryFile = function(file_name){
+    return spawnSync("svn",
+                    ["cat",
+                    (this.user_svn_address[this.user_svn_address.length - 1] === "/" ?
+                        this.user_svn_address :
+                        (this.user_svn_address + "/"))  + file_name,
+                    "--username", this.user_name, "--password", this.user_password],
+        {
+            timeout: 10000  // wait for 10 seconds, if no response, kill the process
+        });
+};
+
 // export Prototype
 module.exports.User = User;

@@ -4,7 +4,7 @@ var FILE_LIST_POINTER, FILE_LIST_DATA;
 /**
  *
  *
- * folder {
+ * File {
  * 		name:
  * 		kind:
  * 		size:
@@ -12,18 +12,8 @@ var FILE_LIST_POINTER, FILE_LIST_DATA;
  * 		commit_author:
  * 		commit_date
  * 		parent:
- * 		children: {
- * 			test: {
- * 					name:
- * 					kind:
- * 					size:
- * 					commit_revision:
- * 					commit_author
- * 					commit_date:
- * 					parent:
- * 				  }
- *
- * 		}
+ * 		single_name:
+ * 		files: (children)
  * }
  *
  */
@@ -62,7 +52,8 @@ function cleanListJSON(list_json){
         commit_revision: "undefined",
         commit_author: "undefined",
         commit_date: "undefined",
-        parent: null
+        parent: null,
+        single_name: "."
     });
     list_json = list_json.lists.list[0].entry;
     /**
@@ -120,6 +111,40 @@ function cleanListJSON(list_json){
 }
 
 /**
+ * Show file information
+ */
+
+function showFileInfo(file){
+    // console.log(file);
+    if (file.name === "."){
+        $("#info_name").text("Home Directory .");
+        $("#info_path").text("Portfolio by Yiyi Wang ywang189");
+        $("#info_kind").text("");
+        $("#info_size").text("");
+        $("#info_commit_revision").text("");
+        $("#info_commit_author").text("");
+        $("#info_commit_date").text("");
+        return;
+    }
+    $("#info_name").text("Name: " + file.single_name);
+    $("#info_path").text("Path: " + file.name);
+    $("#info_kind").text("Kind: " + file.kind);
+
+    if (file.kind === "dir"){ // directory, so no size
+        $("#info_size").hide();
+    }
+    else{ // file
+        $("#info_size").show();
+        $("#info_size").text("Size: " + file.size);
+    }
+
+    $("#info_commit_revision").text("Commit Revision: " + file.commit_revision);
+    $("#info_commit_author").text("Commit Author: " + file.commit_author);
+    $("#info_commit_date").text("Commit Date: " + file.commit_date);
+
+}
+
+/**
  * file_info
  *  {
  *     name:
@@ -141,6 +166,7 @@ function generateDivObjectForFile(file_info){
     }
     else{ // file
         file_div.addClass("tile bg-cyan");
+        file_div.append('<div class="tile-content icon"><i class="icon-file"></i></div>'); // add icon
     }
     var file_brand = $("<div></div>").addClass("brand bg-dark opacity");
     var file_name = $("<span></span>").addClass("text").text(file_info.single_name);
@@ -156,7 +182,51 @@ function generateDivObjectForFile(file_info){
             generateFileList(file_info);
         });
     }
+    else{
+        // bind click function
+        file_div.click(function(){
+            clickFileTile(file_info);
+        });
+    }
     return file_div;
+}
+
+/**
+ * Clicked file tile
+ */
+function clickFileTile(file_data){
+    $("#files_view").html("");
+    // create back tile
+    createBackTile(file_data.parent);
+
+    // show file info
+    showFileInfo(file_data);
+
+    // show file content
+    socket.emit("query_file", {file_name: file_data.name, user_id: user_id});
+
+    // get file content
+    socket.on("query_file_success", function(data){
+        // show data in ace editor
+        var editor = $("<div></div>").attr({"id": "editor"}).css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "550px"});
+        $("#files_view").append(editor);
+        var ace_editor = ace.edit("editor");
+        var modelist = ace.require('ace/ext/modelist'); // use mode list to auto select language mode
+        var mode = modelist.getModeForPath(file_data.name).mode;
+        ace_editor.session.setMode(mode);
+        ace_editor.setValue(data);
+        ace_editor.setReadOnly(true); // dont allow to change the content
+
+    });
+
+    // fail to get file content
+    socket.on("query_file_fail", function(){
+        var not = $.Notify({
+            caption: "Query File Failed",
+            content: "name: " + file_data.name,
+            timeout: 10000 // 10 seconds
+        });
+    });
 }
 
 /*
@@ -164,9 +234,10 @@ function generateDivObjectForFile(file_info){
  */
 function createBackTile(parent){
     if (parent === "." || parent === null) return "";
-    var back_div = $("<div></div>").addClass("tile bg-darkRed");
+    var back_div = $("<div></div>").addClass("tile bg-darkRed").attr({"id":"back_tile"});
     var back_brand = $("<div></div>").addClass("brand bg-dark opacity");
     var back_name = $("<span></span>").addClass("text").text("back");
+    back_div.append('<div class="tile-content icon"><i class="icon-arrow-left"></i></div>'); // add icon
 
     back_brand.append(back_name);
     back_div.append(back_brand);
@@ -205,4 +276,7 @@ function createBackTile(parent){
          file_info = children[file_name];
          $("#files_view").append(generateDivObjectForFile(file_info));
      }
+
+     // show file info
+     showFileInfo(file_data);
  }

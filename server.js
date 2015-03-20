@@ -44,7 +44,7 @@ io.on("connection", function(socket){
         var log_error = query_log_result.stderr.toString("utf8");
         var log_string = query_log_result.stdout.toString("utf8");
         if (log_error){
-            io.emit("login_error", "fail to get log string"); // error
+            socket.emit("login_error", "fail to get log string"); // error
             return;
         }
 
@@ -53,7 +53,7 @@ io.on("connection", function(socket){
         var list_error = query_list_result.stderr.toString("utf8");
         var list_string = query_list_result.stdout.toString("utf8");
         if (list_error){
-            io.emit("login_error", "fail to get list string"); // error
+            socket.emit("login_error", "fail to get list string"); // error
             return;
         }
         // parse xml to json
@@ -61,13 +61,13 @@ io.on("connection", function(socket){
         var list_json = null;
         parseString(log_string, function(error, data){
             if(error){
-                io.emit("login_error", "parsing log string failed"); // error
+                socket.emit("login_error", "parsing log string failed"); // error
                 return;
             }
             log_json = data;
             parseString(list_string, function(error, data){
                 if (error){
-                    io.emit("login_error", "parsing list string failed"); // error
+                    socket.emit("login_error", "parsing list string failed"); // error
                     return;
                 }
                 list_json = data;
@@ -82,7 +82,8 @@ io.on("connection", function(socket){
                     user_password: user_password,
                     user_svn_address: user_svn_address,
                     log_json: log_json,
-                    list_json: list_json
+                    list_json: list_json,
+                    svn_user: user
                 };
                 socket.emit("login_success", socket.id);
             });
@@ -92,6 +93,22 @@ io.on("connection", function(socket){
     // user get data
     socket.on("get_data", function(user_id){
         socket.emit("get_data_success", user_data[user_id]);
+    });
+
+    // user query file
+    socket.on("query_file", function(data){
+        var user_id = data.user_id;
+        var file_name = data.file_name;
+        var user = user_data[user_id].svn_user;
+        var query_file_result = user.queryFile(file_name);
+        var query_file_error = query_file_result.stderr.toString("utf8");
+        var query_file_string = query_file_result.stdout.toString("utf8");
+        if(query_file_error){
+            socket.emit("query_file_fail");
+        }
+        else{
+            socket.emit("query_file_success", query_file_string);
+        }
     });
 });
 
