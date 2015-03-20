@@ -3,16 +3,16 @@ var User = require("./svn_user.js").User;
 var fs = require("fs");
 var express = require("express");
 var querystring = require("querystring");
-var router = express.Router();
 var app = express();
+var http = require('http').Server(app);
+var io = require("socket.io")(http);
+
 /**
     Include a static file serving middleware at the top of stack
 */
 app.use(express.static(__dirname + '/www'));
 
-var user = null;  // global variables
-var log_json = null;
-var list_json = null;
+var user_data = {}; // key is user name
 
 /*
 user.queryLog(function(error){
@@ -22,73 +22,82 @@ user.queryLog(function(error){
 });*/
 
 app.get('/', function(req, res){
-   res.sendfile("index.html");   // render index.html
+   // res.sendfile("index.html");   // render index.html
+   res.render("/www/index.html");
 });
 
-// User Login
-app.post('/UserLogin', function(req, res){
-    console.log("User Login");
-    var post_data = '';
-    if (req.method === "POST"){
-        // begin to get data
-        req.on("data", function(data){
-            post_data += data;
-        });
-        // finish loading data
-        req.on('end', function(){
-            var jsonObject = querystring.parse(post_data);
-            var user_name = jsonObject.user_name;
-            var user_password = jsonObject.user_password;
-            var user_svn_address = jsonObject.user_svn_address;
+io.on("connection", function(socket){
+    console.log("User: " + socket.id + " connected");
 
-            // initialize user
-            user = new User(user_name, user_password, user_svn_address);
-            var query_log_result = user.queryLog();
-            var log_error = query_log_result.stderr.toString("utf8");
-            var log_string = query_log_result.stdout.toString("utf8");
-            if (log_error){
-                res.send("error"); // error
+    // user login
+    socket.on("user_login", function(data){
+        // get user information from data
+        var user_name = data.user_name;
+        var user_password = data.user_password;
+        var user_svn_address = data.user_svn_address;
+
+        // initialize user
+        user = new User(user_name, user_password, user_svn_address);
+
+        // query log
+        var query_log_result = user.queryLog();
+        var log_error = query_log_result.stderr.toString("utf8");
+        var log_string = query_log_result.stdout.toString("utf8");
+        if (log_error){
+            io.emit("login_error", "fail to get log string"); // error
+            return;
+        }
+
+        // query list
+        var query_list_result = user.queryList();
+        var list_error = query_list_result.stderr.toString("utf8");
+        var list_string = query_list_result.stdout.toString("utf8");
+        if (list_error){
+            io.emit("login_error", "fail to get list string"); // error
+            return;
+        }
+        // parse xml to json
+        var log_json = null;
+        var list_json = null;
+        parseString(log_string, function(error, data){
+            if(error){
+                io.emit("login_error", "parsing log string failed"); // error
                 return;
             }
-            var query_list_result = user.queryList();
-            var list_error = query_list_result.stderr.toString("utf8");
-            var list_string = query_list_result.stderr.toString("utf8");
-            if (list_error){
-                res.send("error");
-                return;
-            }
-
-            log_json = null;
-            list_json = null;
-            parseString(log_string, function(error, data){
-                if(error){
-                    res.send("error");
-                    return;
-                }
-                log_json = data;
-            });
+            log_json = data;
             parseString(list_string, function(error, data){
                 if (error){
-                    res.send("error");
+                    io.emit("login_error", "parsing list string failed"); // error
                     return;
                 }
                 list_json = data;
-            });
-            res.send("success");
+                // done retrieving data
+                console.log("Finish loading svn data");
 
-            /*
-            console.log("Result: ");
-            console.log(query_result.stdout.toString("utf8"));
-            console.log("Stderr: " + query_result.stderr.toString("utf8"));
-            console.log(query_result);
-            */
+                // save to database
+                // TODO: save to mongodb
+                // TODO: check same user name ...
+                user_data[socket.id ] = {
+                    user_name: user_name,
+                    user_password: user_password,
+                    user_svn_address: user_svn_address,
+                    log_json: log_json,
+                    list_json: list_json
+                };
+                socket.emit("login_success", socket.id);
+            });
         });
-    }
+    });
+
+    // user get data
+    socket.on("get_data", function(user_id){
+        console.log(user_data[user_id]);
+        socket.emit("get_data_success", [user_data[user_id].log_json, user_data[user_id].list_json]);
+    });
 });
 
 
-var server = app.listen(3000, function(){
-    var host = server.address().address;
-    var port = server.address().port;
-    console.log(host + " " + port);
+
+http.listen(3000, function(){
+    console.log("Listening on port 3000");
 });

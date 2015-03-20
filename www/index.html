@@ -15,6 +15,7 @@
         <script src="js/jquery.min.js"></script>
         <script src="js/jquery.widget.min.js"></script>
         <script src="js/metro.min.js"></script>
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     </head>
     <body class="metro">
         <h1  id="Portfolio_header"> Portfolio </h1>
@@ -76,43 +77,35 @@
             });
         };
         $(document).ready(function(){
+            var socket = io(); // initialize socketio.
             $("#login_btn").click(function(evt){
                 evt.preventDefault(); // prevent default event
                 var user_name = $("#user_name").val();
                 var user_password = $("#user_password").val();
                 var user_svn_address = $("#user_svn_address").val();
-                $.ajax({
-                    type: "POST",
-                    url: "/UserLogin",
-                    async: true,
-                    data: {
-                        user_name: user_name,
-                        user_password: user_password,
-                        user_svn_address: user_svn_address
-                    }
-                }).done(function(data){
-                    if (data === "error"){
-                        loginFailedNotification();
-                        $("#login_form").show("slow");
-                        $("#loading").hide();
-                        $("#Portfolio_header").text("Portfolio");
-                    }
+                socket.emit("user_login", {
+                    user_name: user_name,
+                    user_password: user_password,
+                    user_svn_address: user_svn_address
+                });
+                $("#login_form").hide();
+                $("#loading").show();
+                $("#Portfolio_header").text("Login now... Please Wait...");
 
-                }).fail(function(data){
+                // login failed
+                socket.on("login_error", function(error){
+                    console.log(error);
                     loginFailedNotification();
                     $("#login_form").show("slow");
                     $("#loading").hide();
                     $("#Portfolio_header").text("Portfolio");
                 });
-            });
 
-            // begin ajax
-            $(document).ajaxStart(function(){
-                $("#login_form").hide();
-                $("#loading").show();
-                $("#Portfolio_header").text("Login now... Please Wait...");
-            }).ajaxSuccess(function(){
-                // do nothing here
+                // login success
+                socket.on("login_success", function(data){
+                    console.log("Login success: " + data);
+                    window.location.href = "./portfolio.html?user_name="+user_name+"&socket_id="+data;
+                });
             });
         });
     </script>
