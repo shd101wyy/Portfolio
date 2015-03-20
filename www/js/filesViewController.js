@@ -15,7 +15,7 @@ function showFileInfo(file){
         return;
     }
     $("#info_name").text("Name: " + file.single_name);
-    $("#info_path").text("Path: " + file.name);
+    $("#info_path").text("Path: " + ("/"+user_name+"/") + file.name);
     $("#info_kind").text("Kind: " + file.kind);
 
     if (file.kind === "dir"){ // directory, so no size
@@ -188,7 +188,6 @@ function showCommitList(file_data){
     var file_name = file_data.name;
     var log = LOG.file_name_dict;
     if (file_name in log){
-        console.log("In");
         var commit_list = log[file_name];
 
         /*
@@ -209,14 +208,14 @@ function showCommitList(file_data){
             var date = $("<p></p>").text("Date: " + element.date);
             var author = $("<p></p>").text("Author: " + element.author);
             var action = $("<p></p>").text("Action: " + element.action);
-            var path = $("<p></p>").text("Path: " + element.path);
+            // var path = $("<p></p>").text("Path: " + element.path);
             var msg = $("<p></p>").text("Msg: " + element.msg);
 
             li.append(revision);
             li.append(date);
             li.append(author);
             li.append(action);
-            li.append(path);
+            //li.append(path);
             li.append(msg);
             $("#commit_list").append(li);
         }
