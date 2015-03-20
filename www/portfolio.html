@@ -36,7 +36,9 @@
         <div id = "main_panel">
             <!-- Files View
                 Show file list -->
-            <div id="files_view">
+            <div id="files_view_container">
+                <div id="files_view">
+                </div>
             </div>
             <!-- File Informatino
             -->
@@ -82,8 +84,6 @@
              };
              */
             function initFileList(data){
-                $("#file_list_tree").treeview();
-                //$( "ul" ).listview("refresh");
                 var user_name = data.user_name;
                 var user_svn_address = data.user_svn_address;
                 var log_json = data.log_json;

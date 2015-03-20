@@ -73,6 +73,8 @@
         </div>
     </body>
     <script>
+
+        // user fail to login
         var loginFailedNotification = function(){
             var not = $.Notify({
             	caption: "Login Failed",
@@ -98,11 +100,16 @@
             image.crossOrigin = 'anonymous';
             image.src = 'http://i.imgur.com/VuX2Nf0.jpg';
 
+
+            // user clicked login button
+            // check whether user name and possible is valid
             $("#login_btn").click(function(evt){
                 evt.preventDefault(); // prevent default event
                 var user_name = $("#user_name").val();
                 var user_password = $("#user_password").val();
                 var user_svn_address = $("#user_svn_address").val();
+
+                // send user form inputs to server
                 socket.emit("user_login", {
                     user_name: user_name,
                     user_password: user_password,
@@ -138,7 +145,6 @@
                     var t = $("#Portfolio_header").html();
                     $("#Portfolio_header").html(t += "<br>List String Loaded Successfully<br>Please wait... ;)");
                 });
-
             });
         });
     </script>

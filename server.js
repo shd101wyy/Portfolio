@@ -1,3 +1,6 @@
+/**
+ * Server Side Code
+ */
 var parseString = require('xml2js').parseString; // parse xml to json
 var User = require("./svn_user.js").User;
 var fs = require("fs");
@@ -12,21 +15,17 @@ var io = require("socket.io")(http);
 */
 app.use(express.static(__dirname + '/www'));
 
+/*
+ * TODO: use database
+ */
 var user_data = {}; // key is user name
 
-/*
-user.queryLog(function(error){
-    console.log(error);
-}, function(data){
-    console.log(data);
-});*/
-
 app.get('/', function(req, res){
-   // res.sendfile("index.html");   // render index.html
-   res.render("/www/index.html");
+   res.render("/www/index.html");  // render index.html
 });
 
 io.on("connection", function(socket){
+    // user connect
     console.log("User: " + socket.id + " connected");
 
     // user login
@@ -85,7 +84,7 @@ io.on("connection", function(socket){
                 // TODO: check same user name ...
                 user_data[socket.id ] = {
                     user_name: user_name,
-                    user_password: user_password,
+                    // user_password: user_password,
                     user_svn_address: user_svn_address,
                     log_json: log_json,
                     list_json: list_json,
@@ -119,7 +118,7 @@ io.on("connection", function(socket){
 });
 
 
-
+// setup server
 http.listen(3000, function(){
     console.log("Listening on port 3000");
 });

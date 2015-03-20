@@ -5,7 +5,9 @@ function User(user_name, user_password, user_svn_address){
     this.user_password = user_password;
     this.user_svn_address = user_svn_address;
 }
-
+/**
+ * Query log.xml
+ */
 User.prototype.queryLog = function(){
     // "svn log --verbose --xml https://subversion.ews.illinois.edu/svn/sp15-cs242/ywang189 --username ywang189 --password ****"
     // set up function
@@ -17,6 +19,9 @@ User.prototype.queryLog = function(){
         });
 };
 
+/**
+ * Query list.xml
+ */
 User.prototype.queryList = function(){
     // svn list --xml --recursive https://subversion.ews.illinois.edu/svn/sp15-cs242/ywang189 --username ywang189 --password ****
     // // setup function
@@ -30,7 +35,7 @@ User.prototype.queryList = function(){
 
 
 /*
-    given file name like Chess/Chess.iml
+    Given file name like Chess/Chess.iml
     return its content
 */
 User.prototype.queryFile = function(file_name){
