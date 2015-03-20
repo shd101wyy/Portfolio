@@ -30,13 +30,13 @@ body{
 }
 #file_information{
     width: 90%;
-    height: 50%;
+    height: 30%;
 
     overflow: auto;
 }
 
 #commit_list{
     width: 90%;
-    height: 45%;
+    height: 65%;
     overflow: auto;
 }

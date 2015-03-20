@@ -8,10 +8,12 @@ function showFileInfo(file){
         $("#info_path").text("Portfolio by Yiyi Wang ywang189");
         $("#info_kind").text("Projects are listed on the left side");
         $("#info_size").text("");
+        /*
         $("#info_commit_revision").text("");
         $("#info_commit_author").text("");
         $("#info_commit_date").text("");
         $("#info_commit_msg").text("");
+        */
         return;
     }
     $("#info_name").text("Name: " + file.single_name);
@@ -26,6 +28,7 @@ function showFileInfo(file){
         $("#info_size").text("Size: " + file.size);
     }
 
+    /*
     $("#info_commit_revision").text("Commit Revision: " + file.commit_revision);
     $("#info_commit_author").text("Commit Author: " + file.commit_author);
     $("#info_commit_date").text("Commit Date: " + file.commit_date);
@@ -34,7 +37,7 @@ function showFileInfo(file){
     }
     else{
         $("#info_commit_msg").text("");
-    }
+    }*/
 }
 
 /**
