@@ -16,6 +16,8 @@
         <script src="js/jquery.widget.min.js"></script>
         <script src="js/metro.min.js"></script>
         <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script src="js/formatLog.js"></script>
+        <script src="js/formatList.js"></script>
         <script src="js/filesViewController.js"></script>
 
     </head>
@@ -39,19 +41,21 @@
             <!-- File Informatino
             -->
             <div id="file_information">
-                <h3 id="info_name">Name </h3>
+                <h3 id="info_name">Name </h3> <br>
                 <p id="info_path">Path</p>
                 <p id="info_kind">Kind </p>
                 <p id="info_size">Size</p>
                 <p id="info_commit_revision">Commit Revision</p>
                 <p id="info_commit_author">Commit Author</p>
                 <p id="info_commit_date">Commit Date</p>
+                <p id="info_commit_msg">Commit Message</p>
             </div>
         </div>
     </body>
     <script>
         var socket;  // global variable socket.
         var user_id; // global variable user id
+        var LOG;     // gloabl variable LOG
         $(document).ready(function(){
             /**
              * Parse URL parameters and return a JSON data
@@ -86,8 +90,10 @@
                 var list_json = data.list_json;
                 $("#user_svn_address").text(user_svn_address); // show subversion address
 
+                var log_data = cleanLogJSON(log_json); // clean log data
+                LOG = log_data;
 
-                var file_list_data = cleanListJSON(list_json); // clean data;
+                var file_list_data = cleanListJSON(list_json); // clean list data;
                 generateFileList(file_list_data); // generate file list tree;
             }
 

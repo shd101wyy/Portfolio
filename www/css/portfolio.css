@@ -17,7 +17,7 @@ body{
     float:left;
     width: 60%;
     height: 100%;
-    overflow: scroll;
+    overflow: hidden;
 }
 
 #file_information{
