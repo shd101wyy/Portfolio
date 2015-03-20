@@ -53,7 +53,7 @@ function cleanLogJSON(log_json){
             revision: element.$.revision,
             author: element.author[0],
             date: element.date[0],
-            msg: element.msg[0],
+            msg: ("msg" in element ? element.msg[0] : "no msg provided"),
             path: element.paths[0].path
         };
         var log = new Log(info);
@@ -72,7 +72,7 @@ function cleanLogJSON(log_json){
                 revision: element.$.revision,
                 author: element.author[0],
                 date: element.date[0],
-                msg: element.msg[0],
+                msg: ("msg" in element ? element.msg[0] : "no msg provided"),
                 path: e._,
                 action: e.$.action
             });
