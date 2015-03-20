@@ -47,6 +47,9 @@ io.on("connection", function(socket){
             socket.emit("login_error", "fail to get log string"); // error
             return;
         }
+        else{
+            socket.emit("get_log_string_data_success");
+        }
 
         // query list
         var query_list_result = user.queryList();
@@ -55,6 +58,9 @@ io.on("connection", function(socket){
         if (list_error){
             socket.emit("login_error", "fail to get list string"); // error
             return;
+        }
+        else{
+            socket.emit("get_list_string_data_success");
         }
         // parse xml to json
         var log_json = null;

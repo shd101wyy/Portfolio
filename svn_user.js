@@ -13,7 +13,7 @@ User.prototype.queryLog = function(){
     return spawnSync("svn",
                      ["log", "--verbose", "--xml", this.user_svn_address, "--username", this.user_name, "--password", this.user_password],
         {
-            timeout: 10000  // wait for 10 seconds, if no response, kill the process
+            //timeout: 10000  // wait for 10 seconds, if no response, kill the process
         });
 };
 
@@ -24,7 +24,7 @@ User.prototype.queryList = function(){
     return spawnSync("svn",
                     ["list", "--xml", "--recursive", this.user_svn_address, "--username", this.user_name, "--password", this.user_password],
         {
-            timeout: 10000  // wait for 10 seconds, if no response, kill the process
+            //timeout: 10000  // wait for 10 seconds, if no response, kill the process
         });
 };
 
@@ -41,7 +41,7 @@ User.prototype.queryFile = function(file_name){
                         (this.user_svn_address + "/"))  + file_name,
                     "--username", this.user_name, "--password", this.user_password],
         {
-            timeout: 10000  // wait for 10 seconds, if no response, kill the process
+            //timeout: 10000  // wait for 10 seconds, if no response, kill the process
         });
 };
 

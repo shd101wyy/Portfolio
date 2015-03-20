@@ -118,7 +118,7 @@
                     loginFailedNotification();
                     $("#login_form").show("slow");
                     $("#loading").hide();
-                    $("#Portfolio_header").text("Portfolio");
+                    $("#Portfolio_header").html("Portfolio");
                 });
 
                 // login success
@@ -126,6 +126,19 @@
                     console.log("Login success: " + data);
                     window.location.href = "./portfolio.html?user_name="+user_name+"&socket_id="+data;
                 });
+
+                // get log string data successfully
+                socket.on("get_log_string_data_success", function(data){
+                    var t = $("#Portfolio_header").html();
+                    $("#Portfolio_header").html(t += "<br>Log String Loaded Successfully<br>Please Wait..  ;)");
+                });
+
+                // get list string data successfully
+                socket.on("get_list_string_data_success", function(data){
+                    var t = $("#Portfolio_header").html();
+                    $("#Portfolio_header").html(t += "<br>List String Loaded Successfully<br>Please wait... ;)");
+                });
+
             });
         });
     </script>
