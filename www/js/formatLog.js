@@ -83,3 +83,8 @@ function cleanLogJSON(log_json){
     output.file_name_dict = file_name_dict; // save file_name_dict to output
     return output;
 }
+
+
+if (typeof(module) !== "undefined") {
+    module.exports.cleanLogJSON = cleanLogJSON;
+}

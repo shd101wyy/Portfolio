@@ -98,7 +98,7 @@
                 var log_data = cleanLogJSON(log_json); // clean log data
                 LOG = log_data;
 
-                var file_list_data = cleanListJSON(list_json); // clean list data;
+                var file_list_data = cleanListJSON(list_json, user_name, LOG); // clean list data;
                 generateFileList(file_list_data); // generate file list tree;
             }
 
