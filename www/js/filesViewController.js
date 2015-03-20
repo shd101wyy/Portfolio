@@ -208,7 +208,7 @@ function clickFileTile(file_data){
     // get file content
     socket.on("query_file_success", function(data){
         // show data in ace editor
-        var editor = $("<div></div>").attr({"id": "editor"}).css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "550px"});
+        var editor = $("<div></div>").attr({"id": "editor"}).css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
         $("#files_view").append(editor);
         var ace_editor = ace.edit("editor");
         var modelist = ace.require('ace/ext/modelist'); // use mode list to auto select language mode
