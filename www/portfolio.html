@@ -85,6 +85,8 @@
                     </div>
                 </div>
 
+
+                <!-- create svn account -->
                 <div id="svn_create_page" class="portfolio_content">
                     <h2 id="back_to_svn_selection_panel">
                         <i id="back_to_svn_selection_icon" class="icon-arrow-left on-right"></i>
@@ -123,6 +125,7 @@
                 </div>
             </div>
 
+            <!-- Show friend list on the right side -->
             <div id="friend_lists_div">
                 <h2> Friend Lists <i id="hide_friend_lists_icon" class="icon-arrow-down on-right"></i></h2>
                 <div id="friend_lists" class="listview">
@@ -140,7 +143,7 @@
                     </h3>
                 </div>
             </div>
-
+            <!-- Simple Forum, public comment area -->
             <div id="comment_div">
                 <h2 id="comment_host_name" host=""> Simple Forum </h2>
                 <div id="comment_container">
@@ -160,6 +163,7 @@
             </div>
         </div>
 
+        <!-- Show Bottom Navigation Bar -->
         <nav id="bottom_nagivation_bar" class="navigation-bar fixed-bottom dark">
             <nav class="navigation-bar-content">
                 <a id="show_comment_icon" class="element place-left" href="#"><span class="icon-comments-4"></span></a>
@@ -260,7 +264,6 @@
             user_name = data.user_name;
             user_id = data.id;
             $("#user_name_header").text("Hi,  " + user_name);
-            $(".chat_panel").draggable();
 
             // set top for friend_lists_div
             $("#friend_lists_div").css({
@@ -271,10 +274,8 @@
             // show svn selection page
             $("#svn_selection_panel").show();
 
-            // hide friend lists.
-            //$("#friend_lists_div").hide();
 
-            // tell user we are now in user_panel
+            // tell server that we are now in user_panel
             socket.emit("user_in_panel_page", [user_name, user_id]);
 
             // receive user data from server
