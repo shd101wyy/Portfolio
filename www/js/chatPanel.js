@@ -31,6 +31,10 @@ function createFriendMessage(message){
     return m;
 }
 
+/*
+ * Create chat panel element
+ * append it to body
+ */
 function createChatPanel(x, y, send_to_user_name){
     var chat_panel = $("<div></div>").addClass("chat_panel ui-widget-content").attr({id: "room_" + send_to_user_name});
     var chat_header = $("<div></div>").addClass("chat_header");
@@ -109,7 +113,7 @@ function sendMessage(to_user_name, message){
 }
 
 /**
- *
+ *	add friend message
  */
 function addFriendMessage(chat_panel, friend_name, message){
     //console.log(chat_panel.find(".chat_content"));

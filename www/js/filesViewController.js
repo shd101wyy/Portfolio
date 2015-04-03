@@ -94,13 +94,6 @@ String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
-// refered from http://stackoverflow.com/questions/14915058/how-to-display-binary-data-as-image-extjs-4
-/*
-function hexToBase64(str) {
-    return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
-}
-*/
-
 /**
  * Clicked file tile
  * Show its information
