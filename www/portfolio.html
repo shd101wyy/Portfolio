@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="css/user_panel.css">
         <link rel="stylesheet" href="css/smoke.css">
         <link rel="stylesheet" href="css/chat_panel.css">
+        <link rel="stylesheet" href="css/comment_panel.css">
         <link rel="stylesheet" href="css/portfolio_file_view.css">
 
 
@@ -23,11 +24,6 @@
         <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min.js"></script>
         <script src="js/smoke.js"> </script>
-        <script src="js/chatPanel.js"></script>
-        <script src="js/broadcastMessage.js"></script>
-        <script src="js/formatLog.js"></script>
-        <script src="js/formatList.js"></script>
-        <script src="js/filesViewController.js"></script>
 
     </head>
     <body class="metro">
@@ -144,13 +140,32 @@
                     </h3>
                 </div>
             </div>
+
+            <div id="comment_div">
+                <div id="comment_container">
+                    <!--
+                    <div class="comment_item">
+                        <span >
+                            <span> shd101wyy: </span> <br>
+                            <span class="comment_content"> You are stupid </span>
+                        </span>
+                    </div>
+                    -->
+                </div>
+                <a id="make_new_comment">
+                    Make new comment
+                    <i id="add_new_comment" class="icon-comments on-right"></i>
+                </a>
+            </div>
         </div>
 
         <nav id="bottom_nagivation_bar" class="navigation-bar fixed-bottom dark">
             <nav class="navigation-bar-content">
+                <a id="show_comment_icon" class="element place-left" href="#"><span class="icon-comments-4"></span></a>
+                <item class="element-divider"></item>
 
                 <div id="broadcast_message_div" class="input-control text" data-role="input-control">
-                    <input id="broadcast_message_input" type="text" placeholder="Broadcast your message to your friends here">
+                    <input id="broadcast_message_input" type="text" placeholder="Broadcast instant message to your friends here">
                     <button class="btn-clear" tabindex="-1" type="button"></button>
                 </div>
 
@@ -569,4 +584,12 @@
 
         });
     </script>
+
+    <script src="js/chatPanel.js"></script>
+    <script src="js/commentPanel.js"></script>
+    <script src="js/broadcastMessage.js"></script>
+    <script src="js/formatLog.js"></script>
+    <script src="js/formatList.js"></script>
+    <script src="js/filesViewController.js"></script>
+
 </html>

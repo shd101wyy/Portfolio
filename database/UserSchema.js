@@ -4,6 +4,8 @@
  *  	username
  *  	password
  *  	friends         => save friends _id
+ *  	comment: [[username, message, left], [username, message, left], ...]
+ *  	svn:     [svn_addr, svn_addr, ...]
  *  	_id
  *
  *
@@ -30,6 +32,7 @@ var userSchema = new Schema({
     username: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     friends: Array,
+    comment: Array,
     svn: Array
 });
 
