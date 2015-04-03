@@ -142,6 +142,7 @@
             </div>
 
             <div id="comment_div">
+                <h2 id="comment_host_name" host=""> Simple Forum </h2>
                 <div id="comment_container">
                     <!--
                     <div class="comment_item">
@@ -153,7 +154,7 @@
                     -->
                 </div>
                 <a id="make_new_comment">
-                    Make new comment
+                    Make new post
                     <i id="add_new_comment" class="icon-comments on-right"></i>
                 </a>
             </div>
@@ -179,7 +180,7 @@
         var user_name; // global variable user name
         var svn_username; // gloabl svn user name
         var LOG;     // gloabl variable LOG
-        var svn_counter = 1;
+        var comment;  // global variable comment
         $(document).ready(function(){
             /**
              * Parse URL parameters and return a JSON data
@@ -260,7 +261,6 @@
             user_id = data.id;
             $("#user_name_header").text("Hi,  " + user_name);
             $(".chat_panel").draggable();
-            // $("#svn_current_user").text(user_name);
 
             // set top for friend_lists_div
             $("#friend_lists_div").css({
@@ -283,6 +283,7 @@
                 var online_friends = user_data.online_friends;
                 var friends = user_data.friends;
                 var svn = user_data.svn;
+                var comment_array = user_data.comment;
                 /*
                 <a href="#" class="list">
                     <div class="list-content">
@@ -306,7 +307,7 @@
                     f.bind("click", clickFriend);
 
                     // create chat panel
-                    var chat_panel = createChatPanel(0, 0, friends[i]);
+                    var chat_panel = createChatPanel(600, 0, friends[i]);
                     chat_panel.hide();
                 }
 
@@ -330,6 +331,9 @@
 
                     panel.bind("click", chooseSVN);
                 }
+
+                // initialize comments
+                initializeComments(comment_array);
             });
 
             // click add friend button
@@ -419,7 +423,7 @@
                 $("#friend_lists").append(f);
 
                 // create chat panel
-                var chat_panel = createChatPanel(0, 0, friend_user_name);
+                var chat_panel = createChatPanel(600, 0, friend_user_name);
                 chat_panel.hide();
             });
 
@@ -503,6 +507,17 @@
                 initFileList(data);
             });
 
+            // receive comment update
+            socket.on("forum_comment_update", function(comment_data){
+                createCommentElement(comment_data.content,
+                                     comment_data.left,
+                                     (comment_data.parent_id === "null" ? null: $("#" + comment_data.parent_id)),
+                                     comment_data.username,
+                                     comment_data.comment_id,
+                                     true);
+                $("#" + comment_data.comment_id).css("background", "#6b59bc");
+            });
+
             /**
              * Logout
              * TODO: delete user id from data base
@@ -527,6 +542,15 @@
             // show friend lists
             $("#show_friend_lists_icon").click(function(){
                 $("#friend_lists_div").toggle("slide", {direction: "down"}, 500);
+            });
+
+            // show comment div
+            $("#show_comment_icon").click(function(){
+                $("#comment_div").toggle("slide", {direction: "down"}, 500, function(){
+                    // scroll to bottom
+                    $("#comment_container")[0].scrollTop = $("#comment_container")[0].scrollHeight;
+
+                });
             });
 
             // broadcast input

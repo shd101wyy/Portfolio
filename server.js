@@ -12,6 +12,7 @@ var io = require("socket.io")(http);
 var crypto = require('crypto');
 var db_User = require("./database/UserSchema.js"); // require database User model
 var db_SVN = require("./database/SVNSchema.js");   // require database SVN model
+var db_Comment = require("./database/CommentSchema.js")
 /**
     Include a static file serving middleware at the top of stack
 */
@@ -136,6 +137,7 @@ io.on("connection", function(socket){
         var username = data[0];
         var user_id = data[1];
         db_User.find({username: username, _id: user_id}, function(error, data){
+            var user = data[0];
             if(error || data.length !== 1){
                 return;
             }
@@ -154,20 +156,28 @@ io.on("connection", function(socket){
                     }
                 }
 
+                // get all comments
+                db_Comment.find({}).sort("-date").exec(function(error, data){
+                    if (error){
+                        socket.emit("request_error", "Failed to connect to database");
+                    }
+                    else{
+                        // TODO: send necessary data only..
+                        //       dont send password
+                        // Send data to user
+                        socket.emit("receive_user_data_from_server", {
+                            friends: friends,
+                            online_friends: online_friends,
+                            svn: user.svn,
+                            comment: data
+                        });
 
-                // TODO: send necessary data only..
-                //       dont send password
-                // Send data to user
-                socket.emit("receive_user_data_from_server", {
-                    friends: friends,
-                    online_friends: online_friends,
-                    svn: data[0].svn
+                        // send friend svn
+                        for(i = 0; i < friends.length; i++){
+                            sendFriendSVNToUser(friends[i], socket);
+                        }
+                    }
                 });
-
-                // send friend svn
-                for(i = 0; i < friends.length; i++){
-                    sendFriendSVNToUser(friends[i], socket);
-                }
             }
         });
         // check user notification
@@ -394,6 +404,21 @@ io.on("connection", function(socket){
        io.sockets.connected[user_name_data[user2]].emit("user_receive_message_from_friend", [user1, message]);
     });
 
+    // user post comment to forum
+    socket.on("save_comment", function(data){
+        var comment_data = data;
+        var comment = db_Comment(data);
+        comment.save(function(error){
+            if (error){
+                socket.emit("request_error", "failed to connect to database");
+            }
+            else{
+                // broadcast comment data to anyone else
+                socket.broadcast.emit("forum_comment_update", comment_data);
+            }
+        });
+    });
+
     // remove svn account
     socket.on("remove_svn_account", function(data){
         var username = data[0];
@@ -421,6 +446,7 @@ io.on("connection", function(socket){
         });
     });
 
+    // user disconnect
     socket.on("disconnect", function(){
        if (socket.id in user_socketid_data){
            var disconnect_user_name = user_socketid_data[socket.id];
