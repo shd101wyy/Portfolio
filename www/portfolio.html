@@ -162,6 +162,7 @@
         var socket;  // global variable socket.
         var user_id; // global variable user id
         var user_name; // global variable user name
+        var svn_username; // gloabl svn user name
         var LOG;     // gloabl variable LOG
         $(document).ready(function(){
             /**
@@ -190,7 +191,7 @@
              };
              */
             function initFileList(data){
-                var user_name = data.user_name;
+                var svn_user_name = data.user_name;
                 var user_svn_address = data.user_svn_address;
                 var log_json = data.log_json;
                 var list_json = data.list_json;
@@ -199,7 +200,7 @@
                 var log_data = cleanLogJSON(log_json); // clean log data
                 LOG = log_data;
 
-                var file_list_data = cleanListJSON(list_json, user_name, LOG); // clean list data;
+                var file_list_data = cleanListJSON(list_json, svn_user_name, LOG); // clean list data;
                 generateFileList(file_list_data); // generate file list tree;
             }
 
@@ -483,6 +484,7 @@
                 $("#svn_create_page").hide();
                 $("#file_view_div").show();
                 $("#logout_btn").text("Logout SVN");
+                svn_username = data.user_name; // set svn username
                 initFileList(data);
             });
 

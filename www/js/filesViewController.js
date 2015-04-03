@@ -3,8 +3,8 @@
  */
 function showFileInfo(file){
     // home directory
-    if (file.name === "/" + user_name){
-        $("#info_name").text("Home Directory /" + user_name);
+    if (file.name === "/" + svn_username){
+        $("#info_name").text("Home Directory /" + svn_username);
         $("#info_path").text("Portfolio by Yiyi Wang ywang189");
         $("#info_kind").text("Projects are listed on the left side");
         $("#info_size").text("");
@@ -17,7 +17,7 @@ function showFileInfo(file){
         return;
     }
     $("#info_name").text("Name: " + file.single_name);
-    $("#info_path").text("Path: " + ("/"+user_name+(file.name[0] !== "/" ? "/" : "")) + file.name);
+    $("#info_path").text("Path: " + ("/"+svn_username+(file.name[0] !== "/" ? "/" : "")) + file.name);
     $("#info_kind").text("Kind: " + file.kind);
 
     if (file.kind === "dir"){ // directory, so no size
@@ -116,7 +116,7 @@ function clickFileTile(file_data){
     var file_name = file_data.single_name;
 
     // show file content
-    socket.emit("query_file", {file_name: file_data.name, username: user_name});
+    socket.emit("query_file", {file_name: file_data.name, svn_addr: $("#svn_info_address").text()});
 
     // get file content
     socket.on("query_file_success", function(data){

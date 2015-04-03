@@ -22,7 +22,7 @@ app.use(express.static(__dirname + '/www'));
  */
 var user_name_data = {}; // key is username, value is socketid
 var user_socketid_data = {}; // key is socketid, value is username
-var user_svn_data = {};  // key is username, value is User object.
+var user_svn_data = {};  // key is svn_addr, value is User object.
 /**
  * user will
  */
@@ -231,7 +231,7 @@ io.on("connection", function(socket){
                         // done retrieving data
                         console.log("Finish loading svn data");
 
-                        user_svn_data[username] = svn_user;
+                        user_svn_data[svn_addr] = svn_user;
 
                         socket.emit("connect_to_svn_successfully", {
                             user_name: svn_username,
@@ -350,9 +350,9 @@ io.on("connection", function(socket){
     // user query file
     socket.on("query_file", function(data){
         console.log(data);
-        var username = data.username;
+        var svn_addr = data.svn_addr;
         var file_name = data.file_name;
-        var user = user_svn_data[username];
+        var user = user_svn_data[svn_addr];
         var query_file_result = user.queryFile(file_name);
         var query_file_error = query_file_result.stderr.toString("utf8");
         var query_file_string = query_file_result.stdout.toString("utf8");
