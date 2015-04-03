@@ -340,7 +340,6 @@
             });
 
             socket.on("request_error", function(data){
-                console.log("ERRO!");
                 var not = $.Notify({
                     caption: "Error",
                     content: data,

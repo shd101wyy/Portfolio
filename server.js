@@ -195,7 +195,7 @@ io.on("connection", function(socket){
                 var log_error = query_log_result.stderr.toString("utf8");
                 var log_string = query_log_result.stdout.toString("utf8");
                 if (log_error){
-                    socket.emit("login_error", "fail to get log string"); // error
+                    socket.emit("request_error", "failed to get log string"); // error
                     return;
                 }
                 else{
@@ -207,7 +207,7 @@ io.on("connection", function(socket){
                 var list_error = query_list_result.stderr.toString("utf8");
                 var list_string = query_list_result.stdout.toString("utf8");
                 if (list_error){
-                    socket.emit("login_error", "fail to get list string"); // error
+                    socket.emit("request_error", "failed to get list string"); // error
                     return;
                 }
                 else{
@@ -218,13 +218,13 @@ io.on("connection", function(socket){
                 var list_json = null;
                 parseString(log_string, function(error, data){
                     if(error){
-                        socket.emit("login_error", "parsing log string failed"); // error
+                        socket.emit("request_error", "parsing log string failed"); // error
                         return;
                     }
                     log_json = data;
                     parseString(list_string, function(error, data){
                         if (error){
-                            socket.emit("login_error", "parsing list string failed"); // error
+                            socket.emit("request_error", "parsing list string failed"); // error
                             return;
                         }
                         list_json = data;

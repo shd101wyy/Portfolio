@@ -17,7 +17,7 @@ function showFileInfo(file){
         return;
     }
     $("#info_name").text("Name: " + file.single_name);
-    $("#info_path").text("Path: " + ("/"+user_name+"/") + file.name);
+    $("#info_path").text("Path: " + ("/"+user_name+(file.name[0] !== "/" ? "/" : "")) + file.name);
     $("#info_kind").text("Kind: " + file.kind);
 
     if (file.kind === "dir"){ // directory, so no size
