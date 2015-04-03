@@ -78,7 +78,7 @@ function createChatPanel(x, y, send_to_user_name){
     $(input).on('keypress', function (event) {
          if(event.which == '13'){
             //Disable textbox to prevent multiple submit
-            $("#input_box").attr("disabled", "disabled");
+            input.attr("disabled", "disabled");
             //Do Stuff, submit, etc..
             console.log(input.val());
             if(input.val().trim().length === 0) return;
@@ -92,7 +92,7 @@ function createChatPanel(x, y, send_to_user_name){
             // clear buffer
             input.val("");
             // remove diable
-            $("#input_box").removeAttr("disabled");
+            input.removeAttr("disabled");
          }
     });
 

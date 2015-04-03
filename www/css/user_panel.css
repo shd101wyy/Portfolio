@@ -67,3 +67,8 @@ body{
     padding: 10px;
     border-radius: 50%
 }
+
+#broadcase_message_div{
+    width: 30%;
+    margin-left: 60%;
+}

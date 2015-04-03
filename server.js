@@ -298,15 +298,35 @@ io.on("connection", function(socket){
     });
     */
 
-   socket.on("user_send_message_1_to_1", function(data){
+    socket.on("broadcast_message", function(data){
+        var username = data[0];
+        var message = data[1];
+
+        // get friends list
+        db_User.find({username: username}, function(error, data){
+            if(error || !data || data.length !== 1){
+                return;
+            }
+            else{
+                friends = data[0].friends;
+                for(var i = 0; i < friends.length; i++){
+                    if (friends[i] in user_name_data){ // this user is online
+                        io.sockets.connected[user_name_data[friends[i]]].emit("receive_broadcast_message", [username, message]); 
+                    }
+                }
+            }
+        });
+    });
+
+    socket.on("user_send_message_1_to_1", function(data){
        var user1 = data[0];
        var user2 = data[1];
        var message = data[2];
        console.log(user1 + " send " + user2 + " message: " + message);
        io.sockets.connected[user_name_data[user2]].emit("user_receive_message_from_friend", [user1, message]);
-   });
+    });
 
-   socket.on("disconnect", function(){
+    socket.on("disconnect", function(){
        if (socket.id in user_socketid_data){
            var disconnect_user_name = user_socketid_data[socket.id];
            console.log(socket.id + " " + disconnect_user_name + " disconnect");

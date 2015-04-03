@@ -20,6 +20,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min.js"></script>
         <script src="js/smoke.js"> </script>
         <script src="js/chatPanel.js"></script>
+        <script src="js/broadcastMessage.js"></script>
     </head>
     <body class="metro">
         <nav id="top_navigation_bar" class="navigation-bar dark">
@@ -59,6 +60,12 @@
 
         <nav id="bottom_nagivation_bar" class="navigation-bar fixed-bottom dark">
             <nav class="navigation-bar-content">
+
+                <div id="broadcase_message_div" class="input-control text" data-role="input-control">
+                    <input id="broadcase_message_input" type="text" placeholder="Broadcase your message to your friends here">
+                    <button class="btn-clear" tabindex="-1" type="button"></button>
+                </div>
+
                 <a id="show_friend_lists_icon" class="element place-right" href="#"><span class="icon-user"></span></a>
             </nav>
         </nav>
@@ -248,6 +255,19 @@
                 addFriendMessage($("#room_"+friend_name), friend_name, message);
             });
 
+            // receive broadcase message from friends
+            socket.on("receive_broadcast_message", function(data){
+                var from_user = data[0];
+                var message = data[1];
+                var not = $.Notify({
+                    caption: "Broadcast Message",
+                    content: from_user + ": " + message,
+                    style: {background: "#c37522", color: "white"},
+                    timeout: 10000 // 10 seconds
+                });
+            });
+
+
             /**
              * Logout
              * TODO: delete user id from data base
@@ -264,7 +284,25 @@
             // show friend lists
             $("#show_friend_lists_icon").click(function(){
                 $("#friend_lists_div").show("slide", {direction: "down"}, 500);
-            })
+            });
+
+            // broadcast input
+            $("#broadcase_message_input").on('keypress', function (event) {
+                 if(event.which == '13'){
+                    var input = $("#broadcase_message_input");
+                    //Disable textbox to prevent multiple submit
+                    input.attr("disabled", "disabled");
+                    //Do Stuff, submit, etc..
+                    if(input.val().trim().length === 0) return;
+                    broadcastMessage(user_name, input.val());
+
+                    // clear buffer
+                    input.val("");
+                    // remove diable
+                    input.removeAttr("disabled");
+                 }
+            });
+
         });
     </script>
 </html>
