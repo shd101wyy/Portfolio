@@ -164,6 +164,7 @@
         var user_name; // global variable user name
         var svn_username; // gloabl svn user name
         var LOG;     // gloabl variable LOG
+        var svn_counter = 1;
         $(document).ready(function(){
             /**
              * Parse URL parameters and return a JSON data
@@ -223,7 +224,6 @@
 
             // user clicked svn in svn list.
             function chooseSVN(){
-                var svn_addr = this.id;
                 $("#svn_info").show();
                 $("#connect_svn_btn").show();
 
@@ -236,9 +236,7 @@
                 }
 
                 $("#svn_info_username").text($(this).attr("username"));
-                $("#svn_info_address").text(this.id);
-                $("#ress").text(svn_addr);
-
+                $("#svn_info_address").text($(this).attr("svn_addr"));
             }
 
             socket = io(); // initialize socketio.
@@ -309,7 +307,7 @@
                  */
                 // update user svn list
                 for(i = 0; i < svn.length; i++){
-                    var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn[i], "username": user_name});
+                    var panel = $("<div></div>").addClass("svn_list_item").attr({"svn_addr": svn[i], "username": user_name});
                     var panel_content = $("<p></p>").text(svn[i]);
 
                     panel.append(panel_content);
@@ -444,7 +442,7 @@
                     timeout: 10000 // 10 seconds
                 });
 
-                var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn_address});
+                var panel = $("<div></div>").addClass("svn_list_item").attr({"svn_addr": svn_address, username: user_name});
                 var panel_content = $("<p></p>").text(svn_address);
 
                 panel.append(panel_content);
@@ -457,7 +455,7 @@
             socket.on("receive_friend_svn", function(data){
                 var svn = data[1];
                 for(i = 0; i < svn.length; i++){
-                    var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn[i], "username": data[0]}).css({background: "#c08e3e"});
+                    var panel = $("<div></div>").addClass("svn_list_item").attr({"svn_addr": svn[i], "username": data[0]}).css({background: "#c08e3e"});
                     var panel_content = $("<p></p>").text(svn[i]);
 
                     panel.append(panel_content);
@@ -475,7 +473,8 @@
                     style: {background: "#2196c4", color: "white"},
                     timeout: 10000 // 10 seconds
                 });
-                $("#"+svn_address).remove();
+                //$("#"+svn_address).remove();
+                $("[svn_addr='" + $("#svn_info_address").text() + "']").remove();
                 $("#svn_info").hide();
             });
 

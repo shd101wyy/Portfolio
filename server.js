@@ -398,8 +398,8 @@ io.on("connection", function(socket){
         var username = data[0];
         var svn_addr = data[1];
 
-        db_SVN.find({svn_addr: svn_addr}).remove();
-        var user = db_User.find({username: username}, function(error, data){
+        db_SVN.find({svn_addr: svn_addr}).remove().exec();
+        db_User.find({username: username}, function(error, data){
             if (error || !data || data.length !== 1){
                 socket.emit("request_error", "Failed to connect to database");
             }

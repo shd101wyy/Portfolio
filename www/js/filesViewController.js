@@ -114,54 +114,57 @@ function clickFileTile(file_data){
 
 
     var file_name = file_data.single_name;
+    var svn_addr = $("#svn_info_address").text();
 
+    // check pdf
     if (file_name.endsWith(".pdf")){
-        // open pdf
-        /*
-        <iframe src="http://docs.google.com/gview?url=http://path.com/to/your/pdf.pdf&embedded=true"
-style="width:600px; height:500px;" frameborder="0"></iframe>
-         */
-        console.log(file_data);
-        var iframe = $("<iframe></iframe>").attr({
-            src: "http://docs.google.com/gview?url=" + "" + "&embedded=true"
-        }).css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
+        // download pdf
+        var win = window.open(svn_addr + file_data.name, '_blank');
+        if(win){
+            //Browser has allowed it to be opened
+            win.focus();
+        }else{
+            //Broswer has blocked it
+            $.Notify({
+                caption: "Error",
+                content: 'Please allow popups for this site',
+                style: {background: "#a7604a", color: "white"},
+                timeout: 5000 // 5 seconds
+            });
+        }
+    }
+    // Check pictures
+    else if (file_name.endsWith(".png") || file_name.endsWith(".gif" || file_name.endsWith(".jpeg") || file_name.endsWith(".jpg"))){
+        $("#files_view").html("");
+        // create back tile
+        createBackTile(file_data.parent);
+        var image_div = $("<img></img>")
+            .attr({
+                   // "src": 'data:image/png;base64,' + hexToBase64(data)
+                   "src": svn_addr + file_data.name
+                   })
+            .css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
         $("#files_view").append(image_div);
     }
     else{
     // show file content
-        socket.emit("query_file", {file_name: file_data.name, svn_addr: $("#svn_info_address").text()});
+        socket.emit("query_file", {file_name: file_data.name, svn_addr: svn_addr});
     }
+
     // get file content
     socket.on("query_file_success", function(data){
-        // TODO: Support PDF
-        // Check pictures
-        if (file_name.endsWith(".png") || file_name.endsWith(".gif" || file_name.endsWith(".jpeg") || file_name.endsWith(".jpg"))){
-            $("#files_view").html("");
-            // create back tile
-            createBackTile(file_data.parent);
-            var image_div = $("<img></img>")
-                .attr({
-                       // "src": 'data:image/png;base64,' + hexToBase64(data)
-                       "src": "https://subversion.ews.illinois.edu/svn/sp15-cs242/ywang189/" + file_data.name
-                       })
-                .css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
-            $("#files_view").append(image_div);
-        }
-        else{
-            $("#files_view").html("");
-            // create back tile
-            createBackTile(file_data.parent);
-            // show data in ace editor
-            var editor = $("<div></div>").attr({"id": "editor"}).css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
-            $("#files_view").append(editor);
-            var ace_editor = ace.edit("editor");
-            var modelist = ace.require('ace/ext/modelist'); // use mode list to auto select language mode
-            var mode = modelist.getModeForPath(file_data.name).mode;
-            ace_editor.session.setMode(mode);
-            ace_editor.setValue(data);
-            ace_editor.setReadOnly(true); // dont allow to change the content
-        }
-
+        $("#files_view").html("");
+        // create back tile
+        createBackTile(file_data.parent);
+        // show data in ace editor
+        var editor = $("<div></div>").attr({"id": "editor"}).css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
+        $("#files_view").append(editor);
+        var ace_editor = ace.edit("editor");
+        var modelist = ace.require('ace/ext/modelist'); // use mode list to auto select language mode
+        var mode = modelist.getModeForPath(file_data.name).mode;
+        ace_editor.session.setMode(mode);
+        ace_editor.setValue(data);
+        ace_editor.setReadOnly(true); // dont allow to change the content
     });
 
     // fail to get file content
