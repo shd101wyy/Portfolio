@@ -9,6 +9,8 @@ var querystring = require("querystring");
 var app = express();
 var http = require('http').Server(app);
 var io = require("socket.io")(http);
+var crypto = require('crypto');
+var db_User = require("./database/UserSchema.js"); // require database User model
 
 /**
     Include a static file serving middleware at the top of stack
@@ -28,6 +30,51 @@ io.on("connection", function(socket){
     // user connect
     console.log("User: " + socket.id + " connected");
 
+    // user login
+    socket.on("user_login", function(data){
+        // get user information from data
+        var username = data.user_name;
+        var password = data.user_password;
+        password = crypto.createHash('md5').update(password).digest('hex');
+
+        db_User.find({username: username, password: password}, function(error, users){
+            if (users.length === 0){ // no such user exists
+                socket.emit("login_error", "no such user existed");
+                return;
+            }
+            else{
+                socket.emit("login_success", socket.id);
+                return;
+            }
+        });
+    });
+
+    // user signup
+    socket.on("user_signup", function(data){
+        // get user information from data
+        var username = data.user_name;
+        var password = data.user_password;
+        password = crypto.createHash('md5').update(password).digest('hex');
+
+        // create new user
+        var new_user = db_User({
+            username: username,
+            password: password,
+            friends: []
+        });
+
+        // save to database
+        new_user.save(function(error){
+            if (error){
+                socket.emit("signup_error");
+            }
+            else{
+                socket.emit("login_success", socket.id);
+            }
+        });
+    });
+
+    /*
     // user login
     socket.on("user_login", function(data){
         // get user information from data
@@ -94,6 +141,7 @@ io.on("connection", function(socket){
             });
         });
     });
+    */
 
     // user get data
     socket.on("get_data", function(user_id){

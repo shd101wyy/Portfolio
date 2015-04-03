@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Portfolio</title>
+        <meta charset="utf-8">
+        <meta name="author" content="Yiyi Wang ywang189">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="css/metro-bootstrap.min.css">
+        <link rel="stylesheet" href="css/metro-bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/iconFont.min.css">
+        <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="http://css-spinners.com/css/spinner/ball.css" type="text/css">
+
+
+        <script src="js/jquery.min.js"></script>
+        <script src="js/jquery.widget.min.js"></script>
+        <script src="js/metro.min.js"></script>
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/rainyday.js/0.1.2/rainyday.min.js"> </script>
+    </head>
+    <body class="metro">
+        <img id="background" alt="background" src="" />
+        <div id="main_body">
+            <h1  id="Portfolio_header"> Portfolio </h1>
+            <div id="login_panel">
+                <div class="grid">
+                    <div id="outer">
+                        <div  id="inner">
+                            <!--
+                                Login Form
+                            -->
+                            <div id="login_form">
+                                <form>
+                                    <fieldset>
+                                        <legend id="login_legend">
+                                            Login to SVN Portfolio
+                                        </legend>
+                                        <!-- User Name -->
+                                        <label> User Name</label>
+                                        <div class="input-control text" data-role="input-control">
+                                            <input type="text" placeholder="enter your svn user name here" value="ywang189" id="user_name">
+                                            <button class="btn-clear" tabindex="-1" type="button"></button>
+                                        </div>
+
+                                        <!-- Uesr Password -->
+                                        <label> User Password</label>
+                                        <div class="input-control password" data-role="input-control">
+                                            <input type="password" placeholder="enter your svn password here" id="user_password">
+                                            <button class="btn-reveal" tabindex="-1" type="button"></button>
+                                        </div>
+
+                                        <!-- svn address -->
+                                        <label> SVN Address</label>
+                                        <div class="input-control text" data-role="input-control">
+                                            <input type="text" placeholder="enter your svn address here" value="https://subversion.ews.illinois.edu/svn/sp15-cs242/ywang189" id="user_svn_address">
+                                            <button class="btn-clear" tabindex="-1" type="button"></button>
+                                        </div>
+
+                                        <!-- login button -->
+                                        <button id="login_btn"> Login </button>
+                                    </fieldset>
+                                </form>
+                            </div>
+                            <div  id="loading">
+                                <div id="loading_icon" class="ball">
+                                    Loading...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+
+        // user fail to login
+        var loginFailedNotification = function(){
+            var not = $.Notify({
+            	caption: "Login Failed",
+                content: "Please login again...",
+                timeout: 10000 // 10 seconds
+            });
+        };
+        $(document).ready(function(){
+            var socket = io(); // initialize socketio.
+
+            // draw rainy background using rainday.js
+            // refered from  https://github.com/maroslaw/rainyday.js
+            var image = document.getElementById('background');
+            image.onload = function() {
+                var engine = new RainyDay({
+                    image: this,
+                    gravityAngle: Math.PI / 9,
+                    blur: 10
+                });
+                engine.trail = engine.TRAIL_SMUDGE;
+                engine.rain([ [1, 0, 200], [3, 3, 1] ], 100);
+            };
+            image.crossOrigin = 'anonymous';
+            image.src = 'http://i.imgur.com/VuX2Nf0.jpg';
+
+
+            // user clicked login button
+            // check whether user name and possible is valid
+            $("#login_btn").click(function(evt){
+                evt.preventDefault(); // prevent default event
+                var user_name = $("#user_name").val();
+                var user_password = $("#user_password").val();
+                var user_svn_address = $("#user_svn_address").val();
+
+                // send user form inputs to server
+                socket.emit("user_login", {
+                    user_name: user_name,
+                    user_password: user_password,
+                    user_svn_address: user_svn_address
+                });
+                $("#login_form").hide();
+                $("#loading").show();
+                $("#Portfolio_header").text("Login now... Please Wait...");
+
+                // login failed
+                socket.on("login_error", function(error){
+                    console.log(error);
+                    loginFailedNotification();
+                    $("#login_form").show("slow");
+                    $("#loading").hide();
+                    $("#Portfolio_header").html("Portfolio");
+                });
+
+                // login success
+                socket.on("login_success", function(data){
+                    console.log("Login success: " + data);
+                    window.location.href = "./portfolio.html?user_name="+user_name+"&socket_id="+data;
+                });
+
+                // get log string data successfully
+                socket.on("get_log_string_data_success", function(data){
+                    var t = $("#Portfolio_header").html();
+                    $("#Portfolio_header").html(t += "<br>Log String Loaded Successfully<br>Please Wait..  ;)");
+                });
+
+                // get list string data successfully
+                socket.on("get_list_string_data_success", function(data){
+                    var t = $("#Portfolio_header").html();
+                    $("#Portfolio_header").html(t += "<br>List String Loaded Successfully<br>Please wait... ;)");
+                });
+            });
+        });
+    </script>
+</html>

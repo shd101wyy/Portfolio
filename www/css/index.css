@@ -62,7 +62,16 @@ img {
     margin-top: 20px;
     background: #33b1b5;
     color: white;
+    font-weight: bold;
 }
+
+#signup_btn{
+    margin-top: 20px;
+    background: #33b1b5;
+    color: #182b55;
+    font-weight: bold;
+}
+
 #loading{
     display: none;
     margin-left: auto;

@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <title>Portfolio User Panel</title>
+        <meta charset="utf-8">
+        <meta name="author" content="Yiyi Wang ywang189">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="css/metro-bootstrap.min.css">
+        <link rel="stylesheet" href="css/metro-bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/iconFont.min.css">
+        <link rel="stylesheet" href="css/user_panel.css">
+
+        <script src="js/jquery.min.js"></script>
+        <script src="js/jquery.widget.min.js"></script>
+        <script src="js/metro.min.js"></script>
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+
+    </head>
+    <body class="metro">
+        <nav class="navigation-bar dark">
+            <nav class="navigation-bar-content">
+                <item class="element" id="user_name_header"> Hi, User</span></item>
+                <item class="element-divider"></item>
+                <item class="element" id="user_svn_address"> This is address </item>
+                <button class="element place-right" id="logout_btn">
+                    Logout
+                </button>
+            </nav>
+        </nav>
+        <div id="main_panel">
+            <div id="friend_lists_div">
+                <h2> Friends List </h2>
+                <div id="friend_lists" class="listview">
+                    <a href="#" class="list">
+                        <div class="list-content">
+                            <p> shd101wyy </p>
+                        </div>
+                    </a>
+                </div>
+                <div>
+                    <button id="add_friend_btn">
+                        Add Friend
+                    </button>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        var socket;  // global variable socket.
+        var user_id; // global variable user id
+        var user_name; // global variable user name
+        var LOG;     // gloabl variable LOG
+        $(document).ready(function(){
+            /**
+             * Parse URL parameters and return a JSON data
+             */
+            function parseURLParameters() {
+                  var query = window.location.search.substring(1);
+                  var vars = query.split("&");
+                  var output = {};
+                  for (var i=0; i < vars.length; i++) {
+                    var pair = vars[i].split("=");
+                    output[pair[0]] = pair[1];
+                  }
+                  return output;
+            }
+
+            socket = io(); // initialize socketio.
+            var data = parseURLParameters();
+            user_name = data.user_name;
+            user_id = data.socket_id;
+            $("#user_name_header").text("Hi,  " + user_name);
+
+
+            $("#add_friend_btn").click(function(){
+                $.Dialog({
+                   overlay: true,
+                   shadow: true,
+                   flat: true,
+                   title: '',
+                   onShow: function(_dialog){
+
+                       var content = "<form>" +
+                                        "<label> Enter your friend's user name</label>" +
+                                        "<input type='text' id='friend_user_name'>" +
+                                        "<br>" +
+                                        "<button style='margin-top:10px;' id='submit_friend_name'> Add </button>" +
+                                     "</form>";
+                       $.Dialog.title("Add Friend");
+                       $.Dialog.content(content);
+                       $.Metro.initInputs();
+
+                       $("#submit_friend_name").click(function(){
+                           var friend_user_name = $("#friend_user_name").val();
+                           $.Dialog.close();
+                       });
+                   }
+               });
+            });
+
+            /**
+             * Logout
+             * TODO: delete user id from data base
+             */
+            $("#logout_btn").click(function(){
+                window.location.href = "./index.html";
+            });
+        });
+    </script>
+</html>

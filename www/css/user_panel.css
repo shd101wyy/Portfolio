@@ -1,0 +1,22 @@
+#main_panel{
+    width: 100%;
+    height: 90%;
+    padding: 30px;
+}
+
+#friend_lists_div{
+    width: 30%;
+    height: 100%;
+    padding: 30px;
+}
+
+#friend_lists {
+    height: 80%;
+    /* background-color: rgba(35, 57, 53, 0.65); */
+    overflow: auto;
+}
+
+#add_friend_btn{
+    width: 50%;
+    height: 10%;
+}

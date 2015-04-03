@@ -38,26 +38,22 @@
                                         <!-- User Name -->
                                         <label> User Name</label>
                                         <div class="input-control text" data-role="input-control">
-                                            <input type="text" placeholder="enter your svn user name here" value="ywang189" id="user_name">
+                                            <input type="text" placeholder="enter your svn user name here" value="" id="user_name">
                                             <button class="btn-clear" tabindex="-1" type="button"></button>
                                         </div>
 
-                                        <!-- Uesr Password -->
+                                        <!-- User Password -->
                                         <label> User Password</label>
                                         <div class="input-control password" data-role="input-control">
                                             <input type="password" placeholder="enter your svn password here" id="user_password">
                                             <button class="btn-reveal" tabindex="-1" type="button"></button>
                                         </div>
 
-                                        <!-- svn address -->
-                                        <label> SVN Address</label>
-                                        <div class="input-control text" data-role="input-control">
-                                            <input type="text" placeholder="enter your svn address here" value="https://subversion.ews.illinois.edu/svn/sp15-cs242/ywang189" id="user_svn_address">
-                                            <button class="btn-clear" tabindex="-1" type="button"></button>
-                                        </div>
-
                                         <!-- login button -->
-                                        <button id="login_btn"> Login </button>
+                                        <button id="login_btn"> Log In </button>
+
+                                        <!-- signup button -->
+                                        <button id="signup_btn"> Sign Up </button>
                                     </fieldset>
                                 </form>
                             </div>
@@ -78,12 +74,23 @@
         var loginFailedNotification = function(){
             var not = $.Notify({
             	caption: "Login Failed",
-                content: "Please login again...",
+                content: "Wrong username or password<br>Please login again...",
+                timeout: 10000 // 10 seconds
+            });
+        };
+
+        // user fail to signup
+        var signupFailedNotification = function(){
+            var not = $.Notify({
+            	caption: "Signup Failed",
+                content: "Please try again...",
                 timeout: 10000 // 10 seconds
             });
         };
         $(document).ready(function(){
             var socket = io(); // initialize socketio.
+            var user_name = null;
+            var user_password = null;
 
             // draw rainy background using rainday.js
             // refered from  https://github.com/maroslaw/rainyday.js
@@ -103,48 +110,64 @@
 
             // user clicked login button
             // check whether user name and possible is valid
+            // TODO: sanitize user input.
             $("#login_btn").click(function(evt){
                 evt.preventDefault(); // prevent default event
-                var user_name = $("#user_name").val();
-                var user_password = $("#user_password").val();
-                var user_svn_address = $("#user_svn_address").val();
+
+                // get user user_name and password
+                user_name = $("#user_name").val();
+                user_password = $("#user_password").val();
 
                 // send user form inputs to server
                 socket.emit("user_login", {
                     user_name: user_name,
-                    user_password: user_password,
-                    user_svn_address: user_svn_address
+                    user_password: user_password
                 });
                 $("#login_form").hide();
                 $("#loading").show();
                 $("#Portfolio_header").text("Login now... Please Wait...");
+            });
 
-                // login failed
-                socket.on("login_error", function(error){
-                    console.log(error);
-                    loginFailedNotification();
-                    $("#login_form").show("slow");
-                    $("#loading").hide();
-                    $("#Portfolio_header").html("Portfolio");
+            // login failed
+            socket.on("login_error", function(error){
+                console.log(error);
+                loginFailedNotification();
+                $("#login_form").show("slow");
+                $("#loading").hide();
+                $("#Portfolio_header").html("Portfolio");
+            });
+
+            // user clicked signup button
+            $("#signup_btn").click(function(evt){
+                evt.preventDefault(); // prevent default event
+
+                // get user user_name and password
+                user_name = $("#user_name").val();
+                user_password = $("#user_password").val();
+
+                // send user form inputs to server
+                socket.emit("user_signup", {
+                    user_name: user_name,
+                    user_password: user_password
                 });
 
-                // login success
-                socket.on("login_success", function(data){
-                    console.log("Login success: " + data);
-                    window.location.href = "./portfolio.html?user_name="+user_name+"&socket_id="+data;
-                });
+                $("#login_form").hide();
+                $("#loading").show();
+                $("#Portfolio_header").text("Create new account now... Please Wait...");
+            });
 
-                // get log string data successfully
-                socket.on("get_log_string_data_success", function(data){
-                    var t = $("#Portfolio_header").html();
-                    $("#Portfolio_header").html(t += "<br>Log String Loaded Successfully<br>Please Wait..  ;)");
-                });
+            // signup failed
+            socket.on("signup_error", function(error){
+                signupFailedNotification();
+                $("#login_form").show("slow");
+                $("#loading").hide();
+                $("#Portfolio_header").html("Portfolio");
+            });
 
-                // get list string data successfully
-                socket.on("get_list_string_data_success", function(data){
-                    var t = $("#Portfolio_header").html();
-                    $("#Portfolio_header").html(t += "<br>List String Loaded Successfully<br>Please wait... ;)");
-                });
+            // login/signup success
+            socket.on("login_success", function(data){
+                console.log("Login success: " + data);
+                window.location.href = "./user_panel.html?user_name="+user_name+"&socket_id="+data;
             });
         });
     </script>
