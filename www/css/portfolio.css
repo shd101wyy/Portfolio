@@ -1,9 +1,10 @@
 body{
 }
-#main_panel{
+#file_view_div{
     width: 100%;
     height: 90%;
     padding: 30px;
+    display: none;
 }
 
 #files_view_container{

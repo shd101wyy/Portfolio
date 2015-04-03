@@ -92,6 +92,48 @@ body{
     display: none;
 }
 
+#svn_list{
+    width: 35%;
+    height: 90%;
+    overflow-y: auto;
+    float: left;
+}
+#svn_info{
+    width: 60%;
+    height: 90%;
+    overflow-y: auto;
+    float: right;
+}
+
+.svn_list_item{
+    width: 90%;
+    background: #46a2db;
+    margin-top: 5px;
+    color: white;
+    padding: 20px;
+}
+.svn_list_item p{
+    color: white !important;
+}
+
+#connect_svn_btn{
+    width: 100px;
+    height: 100px;
+    background: #3f9340;
+    color: white !important;
+    font-weight: bold !important;
+    display: none;
+}
+
+#delete_svn_btn{
+    width: 100px;
+    height: 100px;
+    background: #c2722c;
+    color: white !important;
+    font-weight: bold !important;
+    display: none;
+}
+
 #create_svn_form{
     width: 60%;
 }

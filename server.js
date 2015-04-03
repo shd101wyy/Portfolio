@@ -152,7 +152,8 @@ io.on("connection", function(socket){
                 // Send data to user
                 socket.emit("receive_user_data_from_server", {
                     friends: friends,
-                    online_friends: online_friends
+                    online_friends: online_friends,
+                    svn: data[0].svn
                 });
             }
         });
@@ -286,11 +287,9 @@ io.on("connection", function(socket){
         // check svn exists?
         db_SVN.find({svn_addr: svn_addr}, function(error, data){
             if (error || !data){
-                console.log("1");
                 socket.emit("request_error", "Fail to connect to database");
             }
             else if (data.length !== 0){
-                console.log("2");
                 socket.emit("request_error", "Address: " + svn_addr + " already existed");
                 return;
             }
@@ -304,14 +303,12 @@ io.on("connection", function(socket){
                 });
                 svn.save(function(error){
                     if(error){
-                        console.log("Request Error");
                         socket.emit("request_error", "Failed to create svn account");
                     }
                     else{
                         // add svn data to user
                         db_User.find({username: username}, function(error, data){
                             if (error || !data || data.length !== 1){
-                                console.log("failed to connect to database1");
                                 socket.emit("request_error", "Fail to connect to database1");
                             }
                             else{
@@ -319,11 +316,9 @@ io.on("connection", function(socket){
                                 user.svn.push(svn_addr); // add to user
                                 user.save(function(error){
                                     if (error){
-                                        console.log("failed to connect to database2");
                                         socket.emit("request_error", "Fail to connect to database2");
                                     }
                                     else{
-                                        console.log("success");
                                         socket.emit("create_svn_account_successfully", svn_addr);
                                     }
                                 });
@@ -385,6 +380,33 @@ io.on("connection", function(socket){
        var message = data[2];
        console.log(user1 + " send " + user2 + " message: " + message);
        io.sockets.connected[user_name_data[user2]].emit("user_receive_message_from_friend", [user1, message]);
+    });
+
+    // remove svn account
+    socket.on("remove_svn_account", function(data){
+        var username = data[0];
+        var svn_addr = data[1];
+
+        db_SVN.find({svn_addr: svn_addr}).remove();
+        var user = db_User.find({username: username}, function(error, data){
+            if (error || !data || data.length !== 1){
+                socket.emit("request_error", "Failed to connect to database");
+            }
+            else{
+                var user = data[0];
+                var svn = user.svn;
+                var index = svn.indexOf(svn_addr);
+                svn.splice(index, 1);
+                user.save(function(error){
+                    if (error){
+                        socket.emit("request_error", "Failed to connect to database");
+                    }
+                    else{
+                        socket.emit("svn_account_delete_successfully", svn_addr);
+                    }
+                });
+            }
+        });
     });
 
     socket.on("disconnect", function(){

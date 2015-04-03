@@ -10,6 +10,8 @@
         <link rel="stylesheet" href="css/user_panel.css">
         <link rel="stylesheet" href="css/smoke.css">
         <link rel="stylesheet" href="css/chat_panel.css">
+        <link rel="stylesheet" href="css/portfolio.css">
+
 
 
         <script src="js/jquery.min.js"></script>
@@ -36,10 +38,45 @@
             <!-- Show svn options -->
             <div id="main_content">
                 <div id="svn_selection_panel" class="portfolio_content">
-                    <div id="svn_list_div">
-                        <h3 id="add_svn_account_btn">
-                            Add SVN Account<i class="icon-plus-2 on-right"></i>
-                        </h3>
+                    <h3 id="add_svn_account_btn">
+                        Add SVN Account<i class="icon-plus-2 on-right"></i>
+                    </h3>
+                    <!-- Show svn list -->
+                    <div id="svn_list">
+                    </div>
+                    <!-- Show svn info -->
+                    <div id="svn_info">
+                        <h2 id="svn_info_address">  </h2>
+                        <br>
+                        <button id="connect_svn_btn">Connect</button>
+                        <button id="delete_svn_btn">Delete</button>
+                    </div>
+                </div>
+
+                <div id="file_view_div" class="portfolio_content">
+                    <!-- Files View
+                        Show file list -->
+                    <div id="files_view_container">
+                        <div id="files_view">
+                        </div>
+                    </div>
+                    <!-- File Informatino
+                    -->
+                    <div id="file_information_container">
+                        <div id="file_information">
+                            <h3 id="info_name">Name </h3> <br>
+                            <p id="info_path">Path</p>
+                            <p id="info_kind">Kind </p>
+                            <p id="info_size">Size</p>
+                            <!--
+                            <p id="info_commit_revision">Commit Revision</p>
+                            <p id="info_commit_author">Commit Author</p>
+                            <p id="info_commit_date">Commit Date</p>
+                            <p id="info_commit_msg">Commit Message</p>
+                            -->
+                        </div>
+                        <ul id="commit_list">
+                        </ul>
                     </div>
                 </div>
 
@@ -48,7 +85,6 @@
                         <i id="back_to_svn_selection_icon" class="icon-arrow-left on-right"></i>
                     </h2>
                     <div id="create_svn_form">
-                        <form>
                             <fieldset>
                                 <legend>
                                     Create SVN Account
@@ -78,7 +114,6 @@
                                 <!-- login button -->
                                 <button id="create_svn_btn"> Create </button>
                             </fieldset>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -134,6 +169,8 @@
                   return output;
             }
 
+            // user clicked a friend in friend lists
+            // start conversation
             function clickFriend(){
                 var friend_user_name = this.id.slice(2);
                 if($(this).attr("online") === "true"){
@@ -147,6 +184,16 @@
                         timeout: 5000 // 5 seconds
                     });
                 }
+            }
+
+            // user clicked svn in svn list.
+            function chooseSVN(){
+                var svn_addr = this.id;
+                $("#svn_info").show();
+                $("#connect_svn_btn").show();
+                $("#delete_svn_btn").show();
+                $("#svn_info_address").text(svn_addr);
+
             }
 
             socket = io(); // initialize socketio.
@@ -176,6 +223,7 @@
                 var friend_lists = $("#friend_lists");
                 var online_friends = user_data.online_friends;
                 var friends = user_data.friends;
+                var svn = user_data.svn;
                 /*
                 <a href="#" class="list">
                     <div class="list-content">
@@ -201,6 +249,27 @@
                     // create chat panel
                     var chat_panel = createChatPanel(0, 0, friends[i]);
                     chat_panel.hide();
+                }
+
+                /*
+                <div class="panel" data-role="panel">
+                    <div class="panel-header">
+                        ...
+                    </div>
+                    <div class="panel-content">
+                        ...
+                    </div>
+                </div>
+                 */
+                // update svn list
+                for(i = 0; i < svn.length; i++){
+                    var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn[i]});
+                    var panel_content = $("<p></p>").text(svn[i]);
+
+                    panel.append(panel_content);
+                    $("#svn_list").append(panel);
+
+                    panel.bind("click", chooseSVN);
                 }
             });
 
@@ -318,20 +387,38 @@
             });
 
             // create svn account successfully
-            //socket.on("create_svn_account_successfully", function(data){
-                console.log(data);
+            socket.on("create_svn_account_successfully", function(svn_address){
                 // go back to svn selection page
-                //$("#svn_create_page").hide();
-                //$("#svn_selection_panel").show();
-                /*
+                $("#svn_create_page").hide();
+                $("#svn_selection_panel").show();
+
                 $.Notify({
                     caption: "SVN account created successfully",
-                    content: "Addr : " + data[0],
+                    content: "Addr : " + svn_address,
                     style: {background: "#2196c4", color: "white"},
                     timeout: 10000 // 10 seconds
                 });
-                */
-            //});
+
+                var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn_address});
+                var panel_content = $("<p></p>").text(svn_address);
+
+                panel.append(panel_content);
+                $("#svn_list").append(panel);
+
+                panel.bind("click", chooseSVN);
+            });
+
+            // remove svn account successfully
+            socket.on("svn_account_delete_successfully", function(svn_address){
+                $.Notify({
+                    caption: "SVN account remove successfully",
+                    content: "Addr : " + svn_address,
+                    style: {background: "#2196c4", color: "white"},
+                    timeout: 10000 // 10 seconds
+                });
+                $("#"+svn_address).remove();
+                $("#svn_info").hide();
+            });
 
             /**
              * Logout
@@ -386,6 +473,16 @@
                 var svn_username = $("#svn_username").val();
                 var svn_password = $("#svn_password").val();
                 socket.emit("create_svn", [svn_address, svn_username, svn_password, user_name]);
+            });
+
+            // connect svn
+            $("#connect_svn_btn").click(function(){
+                socket.emit("user_connect_to_svn", $("#svn_info_address").text());
+            });
+
+            // remove svn
+            $("#delete_svn_btn").click(function(){
+                socket.emit("remove_svn_account", [user_name, $("#svn_info_address").text()]);
             });
 
         });
