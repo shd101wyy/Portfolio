@@ -12,7 +12,22 @@ var io = require("socket.io")(http);
 var crypto = require('crypto');
 var db_User = require("./database/UserSchema.js"); // require database User model
 var db_SVN = require("./database/SVNSchema.js");   // require database SVN model
-var db_Comment = require("./database/CommentSchema.js")
+var db_Comment = require("./database/CommentSchema.js");
+var  algorithm = 'aes-256-ctr';
+function encrypt(text){
+  var cipher = crypto.createCipher(algorithm, "asdfnjksaQW");
+  var crypted = cipher.update(text,'utf8','hex');
+  crypted += cipher.final('hex');
+  return crypted;
+}
+
+function decrypt(text){
+  var decipher = crypto.createDecipher(algorithm,"asdfnjksaQW");
+  var dec = decipher.update(text,'hex','utf8');
+  dec += decipher.final('utf8');
+  return dec;
+}
+
 /**
     Include a static file serving middleware at the top of stack
 */
@@ -86,7 +101,7 @@ io.on("connection", function(socket){
         // get user information from data
         var username = data.user_name;
         var password = data.user_password;
-        password = crypto.createHash('md5').update(password).digest('hex');
+        password = encrypt(password); // encrypt password
 
         db_User.find({username: username, password: password}, function(error, users){
             if (error || users.length === 0){ // no such user exists
@@ -110,7 +125,7 @@ io.on("connection", function(socket){
         // get user information from data
         var username = data.user_name;
         var password = data.user_password;
-        password = crypto.createHash('md5').update(password).digest('hex');
+        password = encrypt(password);  // encrypt password
 
         // create new user
         var new_user = db_User({
@@ -196,7 +211,7 @@ io.on("connection", function(socket){
             else{
                 // TODO: decrypt svn password
                 var svn_username = data[0].svn_username;
-                var svn_password = data[0].svn_password;
+                var svn_password = decrypt(data[0].svn_password); // decrypt password
                 var svn_addr = data[0].svn_addr;
 
                 var svn_user = new User(svn_username, svn_password, svn_addr);
@@ -307,7 +322,7 @@ io.on("connection", function(socket){
     socket.on("create_svn", function(data){
         var svn_addr = data[0];
         var svn_username = data[1];
-        var svn_password = data[2];
+        var svn_password = encrypt(data[2]); // encrypt password.
         var username = data[3];
 
         // check svn exists?
