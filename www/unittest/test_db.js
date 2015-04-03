@@ -47,38 +47,43 @@
                     svn: []
                 });
                 test2.save();
+            }
+            // now test1 tried to send malicious content to test2
+            var comment = db_Comment({
+                username: "test1",
+                content: "console.log('HAHAHAHA')", // this should not print out
+                left: "0",
+                parent_id: "123",
+                comment_id: "123",
+                post_date: Date.now()
+            });
 
-                // now test1 tried to send malicious content to test2
-                var comment = db_Comment({
-                    username: "test1",
-                    content: "console.log('HAHAHAHA')", // this should not print out
-                    left: "0",
-                    parent_id: "123",
-                    comment_id: "123",
-                    post_date: Date.now()
-                });
-
+            comment.save(function(error){
+                if (error){
+                    throw error;
+                }
                 // test2 read from db_Comment
                 db_Comment.find({comment_id: "123"}, function(error, data){
                     if(error){
+                        db_Comment.find({comment_id: "123"}).remove().exec();
                         throw error;
                     }
                     else{
                         try{
                             var content = data[0].content;
                             assertEqual("console.log('HAHAHAHA')", content);
-
                             // actually I didnt use .html or eval function in my code
                             // so I think the code overall should be safe.
                         }
                         catch(e){
+                            db_Comment.find({comment_id: "123"}).remove().exec();
                             throw e;
                         }
                     }
+                    db_Comment.find({comment_id: "123"}).remove().exec();
+                    process.exit(0);
                 });
-
-                db_Comment.find({comment_id: "123"}).remove().exec();
-            }
+            });
         });
 
     });
