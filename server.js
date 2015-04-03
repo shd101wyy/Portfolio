@@ -204,7 +204,7 @@ io.on("connection", function(socket){
                 return;
             }
             else{
-                console.log(socket.id + " " + username + " enter user panel ");
+                //console.log(socket.id + " " + username + " enter user panel ");
                 user_name_data[username] = socket.id; // save username => socketid to user_data.
                 user_socketid_data[socket.id] = username;
 
@@ -250,7 +250,7 @@ io.on("connection", function(socket){
     socket.on("user_connect_to_svn", function(data){
         var username = data[0];
         var svn_addr = data[1];
-        console.log("user connect to " + svn_addr);
+        //console.log("user connect to " + svn_addr);
         db_SVN.find({svn_addr: svn_addr}, function(error, data){
             if (error || !data || data.length !== 1){
                 socket.emit("request_error", "Failed to connect to database");
@@ -302,7 +302,7 @@ io.on("connection", function(socket){
                         }
                         list_json = data;
                         // done retrieving data
-                        console.log("Finish loading svn data");
+                        //console.log("Finish loading svn data");
 
                         user_svn_data[svn_addr] = svn_user;
 
@@ -320,7 +320,7 @@ io.on("connection", function(socket){
 
     // user add friend
     socket.on("add_friend", function(friend_user_name){
-        console.log("user add " + friend_user_name);
+        //console.log("user add " + friend_user_name);
         db_User.find({username: friend_user_name}, function(error, friend){
             // no such user existed
             if (error || friend.length === 0){
@@ -436,7 +436,7 @@ io.on("connection", function(socket){
 
     // user query file
     socket.on("query_file", function(data){
-        console.log(data);
+        // console.log(data);
         var svn_addr = data.svn_addr;
         var file_name = data.file_name;
         var user = user_svn_data[svn_addr];
@@ -454,7 +454,7 @@ io.on("connection", function(socket){
 
     socket.on("broadcast_message", function(data){
         var username = data[0];
-        var message = sanitize.filterComment(data[1]);
+        var message = sanitize.filterComment(data[1], comment_filter);
 
         // get friends list
         db_User.find({username: username}, function(error, data){
@@ -478,15 +478,15 @@ io.on("connection", function(socket){
        var message = data[2];
 
        // filter comment
-       message = sanitize.filterComment(message);
-       console.log(user1 + " send " + user2 + " message: " + message);
+       message = sanitize.filterComment(message, comment_filter);
+       //console.log(user1 + " send " + user2 + " message: " + message);
        io.sockets.connected[user_name_data[user2]].emit("user_receive_message_from_friend", [user1, message]);
     });
 
     // user post comment to forum
     socket.on("save_comment", function(data){
         // filter comment
-        data.content = sanitize.filterComment(data.content);
+        data.content = sanitize.filterComment(data.content, comment_filter);
 
         var comment_data = data;
         var comment = db_Comment(data);

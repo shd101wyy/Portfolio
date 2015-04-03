@@ -17,7 +17,9 @@ function svnAddressValid(address){
 // filter comment
 function filterComment(input_string, filter){
     for(var key in filter){
-        input_string.split(key).jon(filter[key]);
+        var find = key;
+        var re = new RegExp(find, 'g');
+        input_string = input_string.replace(re, filter[key]);
     }
     return input_string;
 }
