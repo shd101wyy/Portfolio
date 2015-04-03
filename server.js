@@ -11,7 +11,7 @@ var http = require('http').Server(app);
 var io = require("socket.io")(http);
 var crypto = require('crypto');
 var db_User = require("./database/UserSchema.js"); // require database User model
-
+var db_SVN = require("./database/SVNSchema.js");   // require database SVN model
 /**
     Include a static file serving middleware at the top of stack
 */
@@ -108,7 +108,8 @@ io.on("connection", function(socket){
         var new_user = db_User({
             username: username,
             password: password,
-            friends: []
+            friends: [],
+            svn: []
         });
 
         // save to database
@@ -238,15 +239,15 @@ io.on("connection", function(socket){
             }
             // friend not online
             else if (!(friend_user_name in user_name_data)){
-                socket.emit("friend_request_failed", "User " + friend_user_name + " has to be online");
+                socket.emit("request_error", "User " + friend_user_name + " has to be online");
             }
             // user cannot add himself
             else if (friend_user_name === user_socketid_data[socket.id]){
-                socket.emit("friend_request_failed", "You are not allowed to add yourself");
+                socket.emit("request_error", "You are not allowed to add yourself");
             }
             // already friend
             else if (friend[0].friends.indexOf(user_socketid_data[socket.id]) !== -1){
-                socket.emit("friend_request_failed", "You and " + friend_user_name + " are already friends");
+                socket.emit("request_error", "You and " + friend_user_name + " are already friends");
             }
             else{
                 socket.emit("add_friend_request_sent", friend_user_name);
@@ -273,6 +274,66 @@ io.on("connection", function(socket){
                 });
             }
         });
+    });
+
+    // create svn
+    socket.on("create_svn", function(data){
+        var svn_addr = data[0];
+        var svn_username = data[1];
+        var svn_password = data[2];
+        var username = data[3];
+
+        // check svn exists?
+        db_SVN.find({svn_addr: svn_addr}, function(error, data){
+            if (error || !data){
+                console.log("1");
+                socket.emit("request_error", "Fail to connect to database");
+            }
+            else if (data.length !== 0){
+                console.log("2");
+                socket.emit("request_error", "Address: " + svn_addr + " already existed");
+                return;
+            }
+            else{
+
+                var svn = db_SVN({
+                    svn_addr: svn_addr,
+                    svn_username: svn_username,
+                    svn_password: svn_password,
+                    username: username
+                });
+                svn.save(function(error){
+                    if(error){
+                        console.log("Request Error");
+                        socket.emit("request_error", "Failed to create svn account");
+                    }
+                    else{
+                        // add svn data to user
+                        db_User.find({username: username}, function(error, data){
+                            if (error || !data || data.length !== 1){
+                                console.log("failed to connect to database1");
+                                socket.emit("request_error", "Fail to connect to database1");
+                            }
+                            else{
+                                var user = data[0];
+                                user.svn.push(svn_addr); // add to user
+                                user.save(function(error){
+                                    if (error){
+                                        console.log("failed to connect to database2");
+                                        socket.emit("request_error", "Fail to connect to database2");
+                                    }
+                                    else{
+                                        console.log("success");
+                                        socket.emit("create_svn_account_successfully", svn_addr);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
     });
 
     /*
@@ -311,7 +372,7 @@ io.on("connection", function(socket){
                 friends = data[0].friends;
                 for(var i = 0; i < friends.length; i++){
                     if (friends[i] in user_name_data){ // this user is online
-                        io.sockets.connected[user_name_data[friends[i]]].emit("receive_broadcast_message", [username, message]); 
+                        io.sockets.connected[user_name_data[friends[i]]].emit("receive_broadcast_message", [username, message]);
                     }
                 }
             }

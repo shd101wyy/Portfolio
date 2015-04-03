@@ -32,6 +32,7 @@ body{
     background: #f5faf8;
     z-index: 99;
     border-left: thin double #a9d8e7;
+    display: none;
 }
 
 #friend_lists{
@@ -40,7 +41,8 @@ body{
     margin-top: 40px;
     margin-bottom: 5px;
     /* background-color: rgba(35, 57, 53, 0.65); */
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #add_friend_btn{
@@ -68,7 +70,28 @@ body{
     border-radius: 50%
 }
 
+#back_to_svn_selection_icon{
+    background: #454545;
+    color: white;
+    padding: 10px;
+    border-radius: 50%
+}
+
 #broadcase_message_div{
     width: 30%;
     margin-left: 60%;
+}
+
+.portfolio_content{
+    position: absolute;
+    top: 10%;
+    background: #f0e0e0;
+    padding: 20px;
+    width: 90%;
+    height: 80%;
+    display: none;
+}
+
+#create_svn_form{
+    width: 60%;
 }

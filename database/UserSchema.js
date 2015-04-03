@@ -18,7 +18,7 @@ mongoose.connect("mongodb://127.0.0.1/Portfolio");
  **/
 var db = mongoose.connection;
 db.on("error", function(){
-    console.log("Fail to connect to database: users");
+    console.log("Failed to connect to database: users");
 });
 
 db.once("open", function(callback){
@@ -29,7 +29,8 @@ db.once("open", function(callback){
 var userSchema = new Schema({
     username: {type: String, required: true, unique: true},
     password: {type: String, required: true},
-    friends: Array
+    friends: Array,
+    svn: Array
 });
 
 // create model that uses the schema

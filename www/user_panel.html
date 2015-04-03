@@ -35,10 +35,54 @@
         <div id="main_panel">
             <!-- Show svn options -->
             <div id="main_content">
-                <div id="svn_selection_panel">
-                    <h1> Your SVN </h1>
+                <div id="svn_selection_panel" class="portfolio_content">
+                    <div id="svn_list_div">
+                        <h3 id="add_svn_account_btn">
+                            Add SVN Account<i class="icon-plus-2 on-right"></i>
+                        </h3>
+                    </div>
+                </div>
+
+                <div id="svn_create_page" class="portfolio_content">
+                    <h2 id="back_to_svn_selection_panel">
+                        <i id="back_to_svn_selection_icon" class="icon-arrow-left on-right"></i>
+                    </h2>
+                    <div id="create_svn_form">
+                        <form>
+                            <fieldset>
+                                <legend>
+                                    Create SVN Account
+                                </legend>
+
+                                <!-- svn address -->
+                                <label> SVN Address</label>
+                                <div class="input-control text" data-role="input-control">
+                                    <input type="text" placeholder="enter your svn address here" value="" id="svn_address">
+                                    <button class="btn-clear" tabindex="-1" type="button"></button>
+                                </div>
+
+                                <!-- User Name -->
+                                <label> User Name</label>
+                                <div class="input-control text" data-role="input-control">
+                                    <input type="text" placeholder="enter your svn user name here" value="" id="svn_username">
+                                    <button class="btn-clear" tabindex="-1" type="button"></button>
+                                </div>
+
+                                <!-- User Password -->
+                                <label> User Password</label>
+                                <div class="input-control password" data-role="input-control">
+                                    <input type="password" placeholder="enter your svn password here" id="svn_password">
+                                    <button class="btn-reveal" tabindex="-1" type="button"></button>
+                                </div>
+
+                                <!-- login button -->
+                                <button id="create_svn_btn"> Create </button>
+                            </fieldset>
+                        </form>
+                    </div>
                 </div>
             </div>
+
             <div id="friend_lists_div">
                 <h2> Friend Lists <i id="hide_friend_lists_icon" class="icon-arrow-down on-right"></i></h2>
                 <div id="friend_lists" class="listview">
@@ -118,6 +162,12 @@
                 height: $("body").height() - $("#top_navigation_bar").height()*2 - 50
             });
 
+            // show svn selection page
+            $("#svn_selection_panel").show();
+
+            // hide friend lists.
+            //$("#friend_lists_div").hide();
+
             // tell user we are now in user_panel
             socket.emit("user_in_panel_page", [user_name, user_id]);
 
@@ -176,10 +226,10 @@
                 });
             });
 
-            //
-            socket.on("friend_request_failed", function(data){
+            socket.on("request_error", function(data){
+                console.log("ERRO!");
                 var not = $.Notify({
-                    caption: "Failed to send friend request",
+                    caption: "Error",
                     content: data,
                     style: {background: "#a7604a", color: "white"},
                     timeout: 5000 // 5 seconds
@@ -267,6 +317,21 @@
                 });
             });
 
+            // create svn account successfully
+            //socket.on("create_svn_account_successfully", function(data){
+                console.log(data);
+                // go back to svn selection page
+                //$("#svn_create_page").hide();
+                //$("#svn_selection_panel").show();
+                /*
+                $.Notify({
+                    caption: "SVN account created successfully",
+                    content: "Addr : " + data[0],
+                    style: {background: "#2196c4", color: "white"},
+                    timeout: 10000 // 10 seconds
+                });
+                */
+            //});
 
             /**
              * Logout
@@ -283,7 +348,7 @@
 
             // show friend lists
             $("#show_friend_lists_icon").click(function(){
-                $("#friend_lists_div").show("slide", {direction: "down"}, 500);
+                $("#friend_lists_div").toggle("slide", {direction: "down"}, 500);
             });
 
             // broadcast input
@@ -301,6 +366,26 @@
                     // remove diable
                     input.removeAttr("disabled");
                  }
+            });
+
+            // click add svn account button
+            $("#add_svn_account_btn").click(function(){
+                $("#svn_selection_panel").hide();
+                $("#svn_create_page").show();
+            });
+
+            // back to svn selection page
+            $("#back_to_svn_selection_panel").click(function(){
+                $("#svn_create_page").hide();
+                $("#svn_selection_panel").show();
+            });
+
+            // create svn
+            $("#create_svn_btn").click(function(){
+                var svn_address = $("#svn_address").val();
+                var svn_username = $("#svn_username").val();
+                var svn_password = $("#svn_password").val();
+                socket.emit("create_svn", [svn_address, svn_username, svn_password, user_name]);
             });
 
         });
