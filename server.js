@@ -57,6 +57,12 @@ function establishFriendRelationship(user1, user2){
             return;
         }
     });
+
+    // update listview
+    io.sockets.connected[user_name_data[user1.username]].emit("add_friend_list_item", user2.username);
+
+    io.sockets.connected[user_name_data[user2.username]].emit("add_friend_list_item", user1.username);
+
 }
 
 app.get('/', function(req, res){

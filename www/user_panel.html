@@ -13,13 +13,14 @@
 
         <script src="js/jquery.min.js"></script>
         <script src="js/jquery.widget.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
         <script src="js/metro.min.js"></script>
         <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min.js"></script>
         <script src="js/smoke.js"> </script>
     </head>
     <body class="metro">
-        <nav class="navigation-bar dark">
+        <nav id="my_navigation_bar" class="navigation-bar dark">
             <nav class="navigation-bar-content">
                 <item class="element" id="user_name_header"> Hi, User</span></item>
                 <item class="element-divider"></item>
@@ -29,8 +30,11 @@
             </nav>
         </nav>
         <div id="main_panel">
+            <div id="main_content">
+
+            </div>
             <div id="friend_lists_div">
-                <h2> Friends List </h2>
+                <h2> Friend Lists <i id="hide_friend_lists_icon" class="icon-arrow-down on-right"></i></h2>
                 <div id="friend_lists" class="listview">
                     <!--
                     <a href="#" class="list">
@@ -41,12 +45,19 @@
                     -->
                 </div>
                 <div>
-                    <button id="add_friend_btn">
-                        Add Friend
-                    </button>
+                    <h3 id="add_friend_btn">
+                        Add Friend<i class="icon-plus-2 on-right"></i>
+                    </h3>
                 </div>
             </div>
+
         </div>
+
+        <nav id="bottom_nagivation_bar" class="navigation-bar fixed-bottom dark">
+            <nav class="navigation-bar-content">
+                <a id="show_friend_lists_icon" class="element place-right" href="#"><span class="icon-user"></span></a>
+            </nav>
+        </nav>
     </body>
     <script>
         var socket;  // global variable socket.
@@ -66,6 +77,11 @@
                     output[pair[0]] = pair[1];
                   }
                   return output;
+            }
+
+            function clickFriend(){
+                var friend_user_name = this.id.slice(2);
+                alert("Clicked: " + friend_user_name);
             }
 
             socket = io(); // initialize socketio.
@@ -99,6 +115,8 @@
                     d.html(content);
                     f.append(d);
                     friend_lists.append(f);
+
+                    f.bind("click", clickFriend);
                 }
             });
 
@@ -179,6 +197,16 @@
                 $("#__" + friend_user_name).css({background: "#454545"});
             });
 
+            // add friend to list
+            socket.on("add_friend_list_item", function(friend_user_name){
+                console.log("Add Friend: " + friend_user_name);
+                var f = $("<a></a>").addClass("list my_list_content").attr({"id": "__" + friend_user_name}).css({background: "#1e6ca1"});
+                var d = $("<div></div>").addClass("list-content");
+                var content = "<p class='friend_list_user_name'>" + friend_user_name + "</p>";
+                d.html(content);
+                f.append(d);
+                $("#friend_lists").append(f);
+            });
 
             /**
              * Logout
@@ -187,6 +215,16 @@
             $("#logout_btn").click(function(){
                 window.location.href = "./index.html";
             });
+
+            // hide friend lists
+            $("#hide_friend_lists_icon").click(function(){
+                $("#friend_lists_div").hide("slide", {direction: "down"}, 500);
+            });
+
+            // show friend lists
+            $("#show_friend_lists_icon").click(function(){
+                $("#friend_lists_div").show("slide", {direction: "down"}, 500);
+            })
         });
     </script>
 </html>
