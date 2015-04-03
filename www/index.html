@@ -171,6 +171,16 @@
                 window.location.href = "./portfolio.html?user_name="+user_name+"&id="+data; //+"&socket_id="+data;
             });
 
+            // error
+            socket.on("request_error", function(data){
+                var not = $.Notify({
+                    caption: "Error",
+                    content: data,
+                    style: {background: "#a7604a", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+            });
+
             // user already login
             // prevent login more than once
             socket.on("user_already_login", function(data){

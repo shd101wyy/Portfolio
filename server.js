@@ -12,8 +12,12 @@ var io = require("socket.io")(http);
 var crypto = require('crypto');
 var db_User = require("./database/UserSchema.js"); // require database User model
 var db_SVN = require("./database/SVNSchema.js");   // require database SVN model
-var db_Comment = require("./database/CommentSchema.js");
+var db_Comment = require("./database/CommentSchema.js"); // require database comment model
+var db_commentFilter = require("./database/CommentFilterSchema.js"); // require comment filter model
 var  algorithm = 'aes-256-ctr';
+var sanitize = require("./SanitizeString.js");
+var comment_filter = {};
+
 function encrypt(text){
   var cipher = crypto.createCipher(algorithm, "asdfnjksaQW");
   var crypted = cipher.update(text,'utf8','hex');
@@ -33,18 +37,9 @@ function decrypt(text){
 */
 app.use(express.static(__dirname + '/www'));
 
-/*
- * TODO: use database
- */
 var user_name_data = {}; // key is username, value is socketid
 var user_socketid_data = {}; // key is socketid, value is username
 var user_svn_data = {};  // key is svn_addr, value is User object.
-/**
- * user will
- */
-function notifyFriendsOnline(user){
-
-}
 
 /**
  * User will notify all its friends that it is now offline
@@ -92,6 +87,36 @@ app.get('/', function(req, res){
    res.render("/www/index.html");  // render index.html
 });
 
+// check if comment filter exists in database
+// if not, setup comment filter
+if (db_commentFilter.find({}, function(error, data){
+    if (data.length > 0){ //db exists
+        for(var i = 0; i < data.length; i++){
+            var o = data[i];
+            comment_filter[o.replace_string] = o.with_string;
+        }
+    }
+    else{
+        // refered from:
+        // http://www.yourtango.com/200940620/6-red-flag-phrases-should-send-you-running
+        var filter = {
+            "I hate making plans": "I don't want to make plans with you",
+            "All the girls I've dated were just too much": "He isn't willing to compromise",
+            "You take sex too seriously": "He doesn't take sex with you seriously",
+            "I never go after hot girls": "He's lazy and insecure",
+            "I don't really have any male friends": "If I haven't seen my female friends naked yet, I plan on it"
+        };
+        comment_filter = filter;
+        for(var key in filter){
+            var red_phrase_filter = db_commentFilter({
+                replace_string: key,
+                with_string: filter[key]
+            });
+            red_phrase_filter.save();
+        }
+    }
+}))
+
 io.on("connection", function(socket){
     // user connect
     console.log("User: " + socket.id + " connected");
@@ -101,6 +126,17 @@ io.on("connection", function(socket){
         // get user information from data
         var username = data.user_name;
         var password = data.user_password;
+
+        // validate username and password
+        if (!sanitize.usernameValid(username)){
+            socket.emit("request_error", "Invalid username: " + username);
+            return;
+        }
+        if(!sanitize.userpasswordValid(password)){
+            socket.emit("request_error", "Invalid password");
+            return;
+        }
+
         password = encrypt(password); // encrypt password
 
         db_User.find({username: username, password: password}, function(error, users){
@@ -125,6 +161,17 @@ io.on("connection", function(socket){
         // get user information from data
         var username = data.user_name;
         var password = data.user_password;
+
+        // validate username and password
+        if (!sanitize.usernameValid(username)){
+            socket.emit("request_error", "Invalid username: " + username);
+            return;
+        }
+        if(!sanitize.userpasswordValid(password)){
+            socket.emit("request_error", "Invalid password");
+            return;
+        }
+
         password = encrypt(password);  // encrypt password
 
         // create new user
@@ -325,6 +372,20 @@ io.on("connection", function(socket){
         var svn_password = encrypt(data[2]); // encrypt password.
         var username = data[3];
 
+        // validate svn_username and svn_password and svn_addr
+        if (!sanitize.usernameValid(svn_username)){
+            socket.emit("request_error", "Invalid svn username: " + svn_username);
+            return;
+        }
+        if(!sanitize.userpasswordValid(svn_password)){
+            socket.emit("request_error", "Invalid svn password");
+            return;
+        }
+        if(!sanitize.svnAddressValid(svn_addr)){
+            socket.emit("request_error", "Invalid svn address: " + svn_addr);
+            return;
+        }
+
         // check svn exists?
         db_SVN.find({svn_addr: svn_addr}, function(error, data){
             if (error || !data){
@@ -393,7 +454,7 @@ io.on("connection", function(socket){
 
     socket.on("broadcast_message", function(data){
         var username = data[0];
-        var message = data[1];
+        var message = sanitize.filterComment(data[1]);
 
         // get friends list
         db_User.find({username: username}, function(error, data){
@@ -415,12 +476,18 @@ io.on("connection", function(socket){
        var user1 = data[0];
        var user2 = data[1];
        var message = data[2];
+
+       // filter comment
+       message = sanitize.filterComment(message);
        console.log(user1 + " send " + user2 + " message: " + message);
        io.sockets.connected[user_name_data[user2]].emit("user_receive_message_from_friend", [user1, message]);
     });
 
     // user post comment to forum
     socket.on("save_comment", function(data){
+        // filter comment
+        data.content = sanitize.filterComment(data.content);
+
         var comment_data = data;
         var comment = db_Comment(data);
         comment.save(function(error){

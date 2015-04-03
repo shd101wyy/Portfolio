@@ -80,7 +80,7 @@ function createChatPanel(x, y, send_to_user_name){
             //Disable textbox to prevent multiple submit
             input.attr("disabled", "disabled");
             //Do Stuff, submit, etc..
-            console.log(input.val());
+            //console.log(input.val());
             if(input.val().trim().length === 0) return;
             sendMessage(send_to_user_name, input.val());
 
@@ -112,6 +112,6 @@ function sendMessage(to_user_name, message){
  *
  */
 function addFriendMessage(chat_panel, friend_name, message){
-    console.log(chat_panel.find(".chat_content"));
+    //console.log(chat_panel.find(".chat_content"));
     chat_panel.find(".chat_content").append(createFriendMessage(message));
 }

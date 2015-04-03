@@ -422,6 +422,8 @@
                 f.append(d);
                 $("#friend_lists").append(f);
 
+                f.bind("click", clickFriend);
+
                 // create chat panel
                 var chat_panel = createChatPanel(600, 0, friend_user_name);
                 chat_panel.hide();
