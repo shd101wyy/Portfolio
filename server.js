@@ -65,6 +65,13 @@ function establishFriendRelationship(user1, user2){
 
 }
 
+// send friend svn to user
+function sendFriendSVNToUser(friend_name, socket){
+    db_User.find({username: friend_name}, function(error, data){
+        socket.emit("receive_friend_svn", [friend_name, data[0].svn]);
+    });
+}
+
 app.get('/', function(req, res){
    res.render("/www/index.html");  // render index.html
 });
@@ -155,6 +162,11 @@ io.on("connection", function(socket){
                     online_friends: online_friends,
                     svn: data[0].svn
                 });
+
+                // send friend svn
+                for(i = 0; i < friends.length; i++){
+                    sendFriendSVNToUser(friends[i], socket);
+                }
             }
         });
         // check user notification

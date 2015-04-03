@@ -44,6 +44,8 @@
             <!-- Show svn options -->
             <div id="main_content">
                 <div id="svn_selection_panel" class="portfolio_content">
+                    <!--<h3 id="svn_current_user">
+                    </h3>-->
                     <h3 id="add_svn_account_btn">
                         Add SVN Account<i class="icon-plus-2 on-right"></i>
                     </h3>
@@ -52,6 +54,7 @@
                     </div>
                     <!-- Show svn info -->
                     <div id="svn_info">
+                        <h2 id="svn_info_username"> </h2> <!-- This is username, not svn_username -->
                         <h2 id="svn_info_address">  </h2>
                         <br>
                         <button id="connect_svn_btn">Connect</button>
@@ -146,8 +149,8 @@
         <nav id="bottom_nagivation_bar" class="navigation-bar fixed-bottom dark">
             <nav class="navigation-bar-content">
 
-                <div id="broadcase_message_div" class="input-control text" data-role="input-control">
-                    <input id="broadcase_message_input" type="text" placeholder="Broadcase your message to your friends here">
+                <div id="broadcast_message_div" class="input-control text" data-role="input-control">
+                    <input id="broadcast_message_input" type="text" placeholder="Broadcast your message to your friends here">
                     <button class="btn-clear" tabindex="-1" type="button"></button>
                 </div>
 
@@ -222,7 +225,16 @@
                 var svn_addr = this.id;
                 $("#svn_info").show();
                 $("#connect_svn_btn").show();
-                $("#delete_svn_btn").show();
+
+                // only the host user can delete svn
+                if ($(this).attr("username") === user_name){
+                    $("#delete_svn_btn").show();
+                }
+                else{
+                    $("#delete_svn_btn").hide();
+                }
+
+                $("#svn_info_username").text($(this).attr("username"));
                 $("#svn_info_address").text(svn_addr);
 
             }
@@ -233,6 +245,7 @@
             user_id = data.id;
             $("#user_name_header").text("Hi,  " + user_name);
             $(".chat_panel").draggable();
+            // $("#svn_current_user").text(user_name);
 
             // set top for friend_lists_div
             $("#friend_lists_div").css({
@@ -292,9 +305,9 @@
                     </div>
                 </div>
                  */
-                // update svn list
+                // update user svn list
                 for(i = 0; i < svn.length; i++){
-                    var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn[i]});
+                    var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn[i], "username": user_name});
                     var panel_content = $("<p></p>").text(svn[i]);
 
                     panel.append(panel_content);
@@ -405,7 +418,7 @@
                 addFriendMessage($("#room_"+friend_name), friend_name, message);
             });
 
-            // receive broadcase message from friends
+            // receive broadcast message from friends
             socket.on("receive_broadcast_message", function(data){
                 var from_user = data[0];
                 var message = data[1];
@@ -437,6 +450,20 @@
                 $("#svn_list").append(panel);
 
                 panel.bind("click", chooseSVN);
+            });
+
+            // receive friend svn
+            socket.on("receive_friend_svn", function(data){
+                var svn = data[1];
+                for(i = 0; i < svn.length; i++){
+                    var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn[i], "username": data[0]}).css({background: "#c08e3e"});
+                    var panel_content = $("<p></p>").text(svn[i]);
+
+                    panel.append(panel_content);
+                    $("#svn_list").append(panel);
+
+                    panel.bind("click", chooseSVN);
+                }
             });
 
             // remove svn account successfully
@@ -487,9 +514,9 @@
             });
 
             // broadcast input
-            $("#broadcase_message_input").on('keypress', function (event) {
+            $("#broadcast_message_input").on('keypress', function (event) {
                  if(event.which == '13'){
-                    var input = $("#broadcase_message_input");
+                    var input = $("#broadcast_message_input");
                     //Disable textbox to prevent multiple submit
                     input.attr("disabled", "disabled");
                     //Do Stuff, submit, etc..
@@ -528,7 +555,7 @@
                 socket.emit("user_connect_to_svn", [user_name, $("#svn_info_address").text()]);
                 $.Notify({
                     caption: "Connecting to SVN. Please wait!",
-                    content: "Addr : " + svn_address,
+                    content: "Addr : " + $("#svn_info_address").text(),
                     style: {background: "#2196c4", color: "white"},
                     timeout: 10000 // 10 seconds
                 });
