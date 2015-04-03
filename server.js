@@ -179,7 +179,6 @@ io.on("connection", function(socket){
             username: username,
             password: password,
             friends: [],
-            comment: [],
             svn: []
         });
 
