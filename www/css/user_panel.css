@@ -10,8 +10,9 @@
     padding: 30px;
 }
 
-#friend_lists {
+#friend_lists{
     height: 80%;
+    margin-top: 40px;
     /* background-color: rgba(35, 57, 53, 0.65); */
     overflow: auto;
 }
@@ -19,4 +20,15 @@
 #add_friend_btn{
     width: 50%;
     height: 10%;
+}
+
+.my_list_content{
+    padding-left: 50px !important;
+    background: #454545;
+}
+
+
+.friend_list_user_name{
+    color: white !important;
+    font-weight: 400;
 }

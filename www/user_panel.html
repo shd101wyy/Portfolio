@@ -32,11 +32,13 @@
             <div id="friend_lists_div">
                 <h2> Friends List </h2>
                 <div id="friend_lists" class="listview">
+                    <!--
                     <a href="#" class="list">
                         <div class="list-content">
                             <p> shd101wyy </p>
                         </div>
                     </a>
+                    -->
                 </div>
                 <div>
                     <button id="add_friend_btn">
@@ -78,6 +80,7 @@
             // receive user data from server
             socket.on("receive_user_data_from_server", function(user_data){
                 var friend_lists = $("#friend_lists");
+                var online_friends = user_data.online_friends;
                 var friends = user_data.friends;
                 /*
                 <a href="#" class="list">
@@ -87,12 +90,15 @@
                 </a>
                  */
                 for(var i = 0; i < friends.length; i++){
-                    var f = $("<a></a>").class("list");
-                    var d = $("<div></div>").class("list-content");
-                    var content = "<p>" + friends[i] + "</p>";
+                    var f = $("<a></a>").addClass("list my_list_content").attr({"id": "__" + friends[i]});
+                    if (friends[i] in online_friends){ // this user is online, so change it color
+                        f.css({background: "#1e6ca1"});
+                    }
+                    var d = $("<div></div>").addClass("list-content");
+                    var content = "<p class='friend_list_user_name'>" + friends[i] + "</p>";
                     d.html(content);
                     f.append(d);
-                    friends.append(f);
+                    friend_lists.append(f);
                 }
             });
 
@@ -100,7 +106,8 @@
             // add friend
             $("#add_friend_btn").click(function(){
                 smoke.prompt("Enter your friend's user name here", function(friend_user_name){
-                    socket.emit("add_friend", friend_user_name); // send request to server
+                    if(friend_user_name)
+                        socket.emit("add_friend", friend_user_name); // send request to server
                 }, {
                     ok: "Add",
                     cancel: "No",
@@ -148,6 +155,28 @@
                     cancel: "Reject",
                     reverseButtons: true
                 });
+            });
+
+            // friend online
+            socket.on("friend_online", function(friend_user_name){
+                var not = $.Notify({
+                    caption: "Info",
+                    content: friend_user_name + " if now online",
+                    style: {background: "#70ad59", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+                $("#__" + friend_user_name).css({background: "#1e6ca1", color: "white"});
+            });
+
+            // friend offline
+            socket.on("friend_offline", function(friend_user_name){
+                var not = $.Notify({
+                    caption: "Info",
+                    content: friend_user_name + " if now offline",
+                    style: {background: "rgb(41, 62, 87)", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+                $("#__" + friend_user_name).css({background: "#454545"});
             });
 
 

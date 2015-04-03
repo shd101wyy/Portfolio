@@ -23,16 +23,22 @@ app.use(express.static(__dirname + '/www'));
 var user_name_data = {}; // key is user name, value is socketid
 var user_socketid_data = {}; // key is socketid, value is user_name
 
-// remove socketid from user_socketid_data and user_name_data
-function removeSocketid(socketid){
-    if (socketid in user_socketid_data){
-        var disconnect_user_name = user_socketid_data[socketid];
-        console.log(socketid + " " + disconnect_user_name + " disconnect");
-        delete(user_socketid_data[socketid]);
-        delete(user_name_data[disconnect_user_name]);
-    }
-    else{
-        console.log(socketid + " not in data");
+/**
+ * user will
+ */
+function notifyFriendsOnline(user){
+
+}
+
+/**
+ * User will notify all its friends that it is now offline
+ */
+function notifyFriendsOffline(user){
+    var friends = user.friends;
+    for(var i = 0; i < friends.length; i++){
+        if (friends[i] in user_name_data){
+            io.sockets.connected[user_name_data[friends[i]]].emit("friend_offline", user.username);
+        }
     }
 }
 
@@ -105,7 +111,7 @@ io.on("connection", function(socket){
                 socket.emit("signup_error");
             }
             else{
-                socket.emit("login_success", users[0]._id);
+                socket.emit("login_success", new_user._id);
             }
         });
     });
@@ -123,9 +129,24 @@ io.on("connection", function(socket){
                 user_name_data[username] = socket.id; // save username => socketid to user_data.
                 user_socketid_data[socket.id] = username;
 
+                var friends = data[0].friends;
+                var online_friends = {};
+                for(var i = 0; i < friends.length; i++){
+                    // notify user that you are online now
+                    if (friends[i] in user_name_data){
+                        online_friends[friends[i]] = true; // mark this friend as online
+                        io.sockets.connected[user_name_data[friends[i]]].emit("friend_online", username);
+                    }
+                }
+
+
                 // TODO: send necessary data only..
                 //       dont send password
-                socket.emit("receive_user_data_from_server", data[0]);
+                // Send data to user
+                socket.emit("receive_user_data_from_server", {
+                    friends: friends,
+                    online_friends: online_friends
+                });
             }
         });
         // check user notification
@@ -272,7 +293,19 @@ io.on("connection", function(socket){
     */
 
    socket.on("disconnect", function(){
-       removeSocketid(socket.id);
+       if (socket.id in user_socketid_data){
+           var disconnect_user_name = user_socketid_data[socket.id];
+           console.log(socket.id + " " + disconnect_user_name + " disconnect");
+           delete(user_socketid_data[socket.id]);
+           delete(user_name_data[disconnect_user_name]);
+           // notify friends that the user is now offline
+           db_User.find({username: disconnect_user_name}, function(error, data){
+               notifyFriendsOffline(data[0]);
+           });
+       }
+       else{
+           console.log(socket.id + " not in data");
+       }
    });
 });
 

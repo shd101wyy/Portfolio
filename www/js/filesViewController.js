@@ -159,7 +159,6 @@ function clickFileTile(file_data){
             timeout: 10000 // 10 seconds
         });
     });
-
 }
 
 /*
