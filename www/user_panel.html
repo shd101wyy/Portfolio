@@ -8,19 +8,21 @@
         <link rel="stylesheet" href="css/metro-bootstrap-responsive.min.css">
         <link rel="stylesheet" href="css/iconFont.min.css">
         <link rel="stylesheet" href="css/user_panel.css">
+        <link rel="stylesheet" href="css/smoke.css">
+
 
         <script src="js/jquery.min.js"></script>
         <script src="js/jquery.widget.min.js"></script>
         <script src="js/metro.min.js"></script>
         <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min.js"></script>
+        <script src="js/smoke.js"> </script>
     </head>
     <body class="metro">
         <nav class="navigation-bar dark">
             <nav class="navigation-bar-content">
                 <item class="element" id="user_name_header"> Hi, User</span></item>
                 <item class="element-divider"></item>
-                <item class="element" id="user_svn_address"> This is address </item>
                 <button class="element place-right" id="logout_btn">
                     Logout
                 </button>
@@ -67,35 +69,87 @@
             socket = io(); // initialize socketio.
             var data = parseURLParameters();
             user_name = data.user_name;
-            user_id = data.socket_id;
+            user_id = data.id;
             $("#user_name_header").text("Hi,  " + user_name);
 
+            // tell user we are now in user_panel
+            socket.emit("user_in_panel_page", [user_name, user_id]);
 
-            $("#add_friend_btn").click(function(){
-                $.Dialog({
-                   overlay: true,
-                   shadow: true,
-                   flat: true,
-                   title: '',
-                   onShow: function(_dialog){
-
-                       var content = "<form>" +
-                                        "<label> Enter your friend's user name</label>" +
-                                        "<input type='text' id='friend_user_name'>" +
-                                        "<br>" +
-                                        "<button style='margin-top:10px;' id='submit_friend_name'> Add </button>" +
-                                     "</form>";
-                       $.Dialog.title("Add Friend");
-                       $.Dialog.content(content);
-                       $.Metro.initInputs();
-
-                       $("#submit_friend_name").click(function(){
-                           var friend_user_name = $("#friend_user_name").val();
-                           $.Dialog.close();
-                       });
-                   }
-               });
+            // receive user data from server
+            socket.on("receive_user_data_from_server", function(user_data){
+                var friend_lists = $("#friend_lists");
+                var friends = user_data.friends;
+                /*
+                <a href="#" class="list">
+                    <div class="list-content">
+                        <p> shd101wyy </p>
+                    </div>
+                </a>
+                 */
+                for(var i = 0; i < friends.length; i++){
+                    var f = $("<a></a>").class("list");
+                    var d = $("<div></div>").class("list-content");
+                    var content = "<p>" + friends[i] + "</p>";
+                    d.html(content);
+                    f.append(d);
+                    friends.append(f);
+                }
             });
+
+            // click add friend button
+            // add friend
+            $("#add_friend_btn").click(function(){
+                smoke.prompt("Enter your friend's user name here", function(friend_user_name){
+                    socket.emit("add_friend", friend_user_name); // send request to server
+                }, {
+                    ok: "Add",
+                    cancel: "No",
+                    reverseButtons: true
+                });
+            });
+
+            socket.on("no_such_user", function(friend_user_name){
+                var not = $.Notify({
+                    caption: "Info",
+                    content: "User " + friend_user_name + " doesn't exist.",
+                    style: {background: "#a7604a", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+            });
+
+            //
+            socket.on("friend_request_failed", function(data){
+                var not = $.Notify({
+                    caption: "Failed to send friend request",
+                    content: data,
+                    style: {background: "#a7604a", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+            });
+
+            // add friend request sent
+            socket.on("add_friend_request_sent", function(friend_user_name){
+                var not = $.Notify({
+                    caption: "Info",
+                    content: "Friend request sent to " + friend_user_name,
+                    style: {background: "#3e8fc5", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+            });
+
+            // receive friend request from friend
+            socket.on("receive_friend_request", function(friend_user_name){
+                smoke.confirm(friend_user_name + " wants to add you as friend! ", function(e){
+                    if(e){ // accept
+                        socket.emit("accept_friend_request", [user_name, friend_user_name]);
+                    }
+                }, {
+                    ok: "Accept",
+                    cancel: "Reject",
+                    reverseButtons: true
+                });
+            });
+
 
             /**
              * Logout

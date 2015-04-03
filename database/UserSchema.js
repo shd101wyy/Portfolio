@@ -3,7 +3,7 @@
  *  User schema:
  *  	username
  *  	password
- *  	friends     => save friends _id
+ *  	friends         => save friends _id
  *  	_id
  *
  *

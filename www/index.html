@@ -123,9 +123,9 @@
                     user_name: user_name,
                     user_password: user_password
                 });
-                $("#login_form").hide();
-                $("#loading").show();
-                $("#Portfolio_header").text("Login now... Please Wait...");
+                //$("#login_form").hide();
+                //$("#loading").show();
+                //$("#Portfolio_header").text("Login now... Please Wait...");
             });
 
             // login failed
@@ -151,9 +151,9 @@
                     user_password: user_password
                 });
 
-                $("#login_form").hide();
-                $("#loading").show();
-                $("#Portfolio_header").text("Create new account now... Please Wait...");
+                //$("#login_form").hide();
+                //$("#loading").show();
+                //$("#Portfolio_header").text("Create new account now... Please Wait...");
             });
 
             // signup failed
@@ -167,7 +167,18 @@
             // login/signup success
             socket.on("login_success", function(data){
                 console.log("Login success: " + data);
-                window.location.href = "./user_panel.html?user_name="+user_name+"&socket_id="+data;
+                // TODO: 验证用户
+                window.location.href = "./user_panel.html?user_name="+user_name+"&id="+data; //+"&socket_id="+data;
+            });
+
+            // user already login
+            // prevent login more than once
+            socket.on("user_already_login", function(data){
+                var not = $.Notify({
+                    caption: "Login Failed",
+                    content: "Your account is being used now",
+                    timeout: 10000 // 10 seconds
+                });
             });
         });
     </script>

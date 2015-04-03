@@ -20,7 +20,38 @@ app.use(express.static(__dirname + '/www'));
 /*
  * TODO: use database
  */
-var user_data = {}; // key is user name
+var user_name_data = {}; // key is user name, value is socketid
+var user_socketid_data = {}; // key is socketid, value is user_name
+
+// remove socketid from user_socketid_data and user_name_data
+function removeSocketid(socketid){
+    if (socketid in user_socketid_data){
+        var disconnect_user_name = user_socketid_data[socketid];
+        console.log(socketid + " " + disconnect_user_name + " disconnect");
+        delete(user_socketid_data[socketid]);
+        delete(user_name_data[disconnect_user_name]);
+    }
+    else{
+        console.log(socketid + " not in data");
+    }
+}
+
+// make 2 users friends
+function establishFriendRelationship(user1, user2){
+    user1.friends.push(user2.username);
+    user2.friends.push(user1.username);
+
+    user1.save(function(error){
+        if(error){
+            return;
+        }
+    });
+    user2.save(function(error){
+        if(error){
+            return;
+        }
+    });
+}
 
 app.get('/', function(req, res){
    res.render("/www/index.html");  // render index.html
@@ -38,13 +69,18 @@ io.on("connection", function(socket){
         password = crypto.createHash('md5').update(password).digest('hex');
 
         db_User.find({username: username, password: password}, function(error, users){
-            if (users.length === 0){ // no such user exists
+            if (error || users.length === 0){ // no such user exists
                 socket.emit("login_error", "no such user existed");
-                return;
             }
             else{
-                socket.emit("login_success", socket.id);
-                return;
+                // user already login
+                // we only allow user login in one page (once)
+                if (username in user_name_data){
+                    socket.emit("user_already_login");
+                }
+                else{
+                    socket.emit("login_success", users[0]._id);
+                }
             }
         });
     });
@@ -69,9 +105,31 @@ io.on("connection", function(socket){
                 socket.emit("signup_error");
             }
             else{
-                socket.emit("login_success", socket.id);
+                socket.emit("login_success", users[0]._id);
             }
         });
+    });
+
+    // user enter user panel
+    socket.on("user_in_panel_page", function(data){
+        var username = data[0];
+        var user_id = data[1];
+        db_User.find({username: username, _id: user_id}, function(error, data){
+            if(error || data.length !== 1){
+                return;
+            }
+            else{
+                console.log(socket.id + " " + username + " enter user panel ");
+                user_name_data[username] = socket.id; // save username => socketid to user_data.
+                user_socketid_data[socket.id] = username;
+
+                // TODO: send necessary data only..
+                //       dont send password
+                socket.emit("receive_user_data_from_server", data[0]);
+            }
+        });
+        // check user notification
+        // TODO: do it later
     });
 
     /*
@@ -143,6 +201,54 @@ io.on("connection", function(socket){
     });
     */
 
+    // user add friend
+    socket.on("add_friend", function(friend_user_name){
+        console.log("user add " + friend_user_name);
+        db_User.find({username: friend_user_name}, function(error, friend){
+            // no such user existed
+            if (error || friend.length === 0){
+                socket.emit("no_such_user", friend_user_name);
+            }
+            // friend not online
+            else if (!(friend_user_name in user_name_data)){
+                socket.emit("friend_request_failed", "User " + friend_user_name + " has to be online");
+            }
+            // user cannot add himself
+            else if (friend_user_name === user_socketid_data[socket.id]){
+                socket.emit("friend_request_failed", "You are not allowed to add yourself");
+            }
+            // already friend
+            else if (friend[0].friends.indexOf(user_socketid_data[socket.id]) !== -1){
+                socket.emit("friend_request_failed", "You and " + friend_user_name + " are already friends");
+            }
+            else{
+                socket.emit("add_friend_request_sent", friend_user_name);
+
+                // send friend your information
+                io.sockets.connected[user_name_data[friend_user_name]].emit("receive_friend_request", user_socketid_data[socket.id]);
+            }
+        });
+    });
+
+    // user accept friend
+    socket.on("accept_friend_request", function(data){
+        var user1 = data[0];
+        var user2 = data[1];
+        db_User.find({username: user1}, function(error, users){
+            if (users && users.length === 1 ){
+                user1 = users[0];
+
+                db_User.find({username: user2}, function(error, users){
+                    if (users && users.length === 1){
+                        user2 = users[0];
+                        establishFriendRelationship(user1, user2);
+                    }
+                });
+            }
+        });
+    });
+
+    /*
     // user get data
     socket.on("get_data", function(user_id){
         socket.emit("get_data_success", user_data[user_id]);
@@ -163,6 +269,11 @@ io.on("connection", function(socket){
             socket.emit("query_file_success", query_file_string);
         }
     });
+    */
+
+   socket.on("disconnect", function(){
+       removeSocketid(socket.id);
+   });
 });
 
 
