@@ -298,6 +298,14 @@ io.on("connection", function(socket){
     });
     */
 
+   socket.on("user_send_message_1_to_1", function(data){
+       var user1 = data[0];
+       var user2 = data[1];
+       var message = data[2];
+       console.log(user1 + " send " + user2 + " message: " + message);
+       io.sockets.connected[user_name_data[user2]].emit("user_receive_message_from_friend", [user1, message]);
+   });
+
    socket.on("disconnect", function(){
        if (socket.id in user_socketid_data){
            var disconnect_user_name = user_socketid_data[socket.id];

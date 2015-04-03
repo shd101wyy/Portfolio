@@ -9,6 +9,7 @@
         <link rel="stylesheet" href="css/iconFont.min.css">
         <link rel="stylesheet" href="css/user_panel.css">
         <link rel="stylesheet" href="css/smoke.css">
+        <link rel="stylesheet" href="css/chat_panel.css">
 
 
         <script src="js/jquery.min.js"></script>
@@ -18,9 +19,10 @@
         <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min.js"></script>
         <script src="js/smoke.js"> </script>
+        <script src="js/chatPanel.js"></script>
     </head>
     <body class="metro">
-        <nav id="my_navigation_bar" class="navigation-bar dark">
+        <nav id="top_navigation_bar" class="navigation-bar dark">
             <nav class="navigation-bar-content">
                 <item class="element" id="user_name_header"> Hi, User</span></item>
                 <item class="element-divider"></item>
@@ -30,8 +32,11 @@
             </nav>
         </nav>
         <div id="main_panel">
+            <!-- Show svn options -->
             <div id="main_content">
-
+                <div id="svn_selection_panel">
+                    <h1> Your SVN </h1>
+                </div>
             </div>
             <div id="friend_lists_div">
                 <h2> Friend Lists <i id="hide_friend_lists_icon" class="icon-arrow-down on-right"></i></h2>
@@ -50,7 +55,6 @@
                     </h3>
                 </div>
             </div>
-
         </div>
 
         <nav id="bottom_nagivation_bar" class="navigation-bar fixed-bottom dark">
@@ -81,7 +85,17 @@
 
             function clickFriend(){
                 var friend_user_name = this.id.slice(2);
-                alert("Clicked: " + friend_user_name);
+                if($(this).attr("online") === "true"){
+                    $("#room_" + friend_user_name).show();
+                }
+                else{
+                    $.Notify({
+                        caption: "Info",
+                        content: friend_user_name + " is offline. Cannot send message ",
+                        style: {background: "rgb(41, 62, 87)", color: "white"},
+                        timeout: 5000 // 5 seconds
+                    });
+                }
             }
 
             socket = io(); // initialize socketio.
@@ -89,6 +103,13 @@
             user_name = data.user_name;
             user_id = data.id;
             $("#user_name_header").text("Hi,  " + user_name);
+            $(".chat_panel").draggable();
+
+            // set top for friend_lists_div
+            $("#friend_lists_div").css({
+                top: $("#top_navigation_bar").height(),
+                height: $("body").height() - $("#top_navigation_bar").height()*2 - 50
+            });
 
             // tell user we are now in user_panel
             socket.emit("user_in_panel_page", [user_name, user_id]);
@@ -105,10 +126,12 @@
                     </div>
                 </a>
                  */
+                // update friend lists
                 for(var i = 0; i < friends.length; i++){
-                    var f = $("<a></a>").addClass("list my_list_content").attr({"id": "__" + friends[i]});
+                    var f = $("<a></a>").addClass("list my_list_content").attr({"id": "__" + friends[i], "online": false});
                     if (friends[i] in online_friends){ // this user is online, so change it color
                         f.css({background: "#1e6ca1"});
+                        f.attr("online", true);
                     }
                     var d = $("<div></div>").addClass("list-content");
                     var content = "<p class='friend_list_user_name'>" + friends[i] + "</p>";
@@ -117,6 +140,10 @@
                     friend_lists.append(f);
 
                     f.bind("click", clickFriend);
+
+                    // create chat panel
+                    var chat_panel = createChatPanel(0, 0, friends[i]);
+                    chat_panel.hide();
                 }
             });
 
@@ -179,33 +206,46 @@
             socket.on("friend_online", function(friend_user_name){
                 var not = $.Notify({
                     caption: "Info",
-                    content: friend_user_name + " if now online",
+                    content: friend_user_name + " is now online",
                     style: {background: "#70ad59", color: "white"},
                     timeout: 5000 // 5 seconds
                 });
-                $("#__" + friend_user_name).css({background: "#1e6ca1", color: "white"});
+                $("#__" + friend_user_name).css({background: "#1e6ca1", color: "white"}).attr("online", true);
             });
 
             // friend offline
             socket.on("friend_offline", function(friend_user_name){
                 var not = $.Notify({
                     caption: "Info",
-                    content: friend_user_name + " if now offline",
+                    content: friend_user_name + " is now offline",
                     style: {background: "rgb(41, 62, 87)", color: "white"},
                     timeout: 5000 // 5 seconds
                 });
-                $("#__" + friend_user_name).css({background: "#454545"});
+                $("#__" + friend_user_name).css({background: "#454545"}).attr("online", false);
             });
 
             // add friend to list
             socket.on("add_friend_list_item", function(friend_user_name){
-                console.log("Add Friend: " + friend_user_name);
-                var f = $("<a></a>").addClass("list my_list_content").attr({"id": "__" + friend_user_name}).css({background: "#1e6ca1"});
+                // update listview
+                var f = $("<a></a>").addClass("list my_list_content").attr({"id": "__" + friend_user_name, online:"true"}).css({background: "#1e6ca1"});
                 var d = $("<div></div>").addClass("list-content");
                 var content = "<p class='friend_list_user_name'>" + friend_user_name + "</p>";
                 d.html(content);
                 f.append(d);
                 $("#friend_lists").append(f);
+
+                // create chat panel
+                var chat_panel = createChatPanel(0, 0, friend_user_name);
+                chat_panel.hide();
+            });
+
+            // receive message from friend
+            socket.on("user_receive_message_from_friend", function(data){
+                var friend_name = data[0];
+                var message = data[1];
+                // console.log("receive " + message + " from " + friend_name);
+                $("#room_"+friend_name).show();
+                addFriendMessage($("#room_"+friend_name), friend_name, message);
             });
 
             /**
