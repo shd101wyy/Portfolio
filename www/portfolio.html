@@ -169,12 +169,14 @@
                 <a id="show_comment_icon" class="element place-left" href="#"><span class="icon-comments-4"></span></a>
                 <item class="element-divider"></item>
 
-                <div id="broadcast_message_div" class="input-control text" data-role="input-control">
-                    <input id="broadcast_message_input" type="text" placeholder="Broadcast instant message to your friends here">
-                    <button class="btn-clear" tabindex="-1" type="button"></button>
+
+                <div class="input-control text" id="broadcast_message_div">
+                        <input id="broadcast_message_input" type="text" placeholder="Broadcast instant message to your friends here">
+                        <button class="btn-clear" tabindex="-1" type="button"></button>
                 </div>
 
                 <a id="show_friend_lists_icon" class="element place-right" href="#"><span class="icon-user"></span></a>
+
             </nav>
         </nav>
     </body>
@@ -523,7 +525,6 @@
 
             /**
              * Logout
-             * TODO: delete user id from data base
              */
             $("#logout_btn").click(function(){
                 if ($("#logout_btn").text() === "Logout SVN"){

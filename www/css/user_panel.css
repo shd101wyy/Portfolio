@@ -77,11 +77,6 @@ body{
     border-radius: 50%
 }
 
-#broadcast_message_div{
-    width: 30%;
-    margin-left: 60%;
-}
-
 .portfolio_content{
     position: absolute;
     top: 10%;
@@ -90,6 +85,14 @@ body{
     width: 90%;
     height: 80%;
     display: none;
+}
+
+#broadcast_message_div{
+    width: 40%;
+    margin-left: 40%;
+}
+#broadcast_message_input{
+    width: 100%;
 }
 
 #svn_list{
