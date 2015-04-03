@@ -7,58 +7,153 @@
         <link rel="stylesheet" href="css/metro-bootstrap.min.css">
         <link rel="stylesheet" href="css/metro-bootstrap-responsive.min.css">
         <link rel="stylesheet" href="css/iconFont.min.css">
-        <link rel="stylesheet" href="css/portfolio.css">
-        <link rel="stylesheet" href="http://css-spinners.com/css/spinner/ball.css" type="text/css">
+        <link rel="stylesheet" href="css/user_panel.css">
+        <link rel="stylesheet" href="css/smoke.css">
+        <link rel="stylesheet" href="css/chat_panel.css">
+        <link rel="stylesheet" href="css/portfolio_file_view.css">
+
+
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.8/ace.js" type="text/javascript" charset="utf-8"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.8/ext-modelist.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/jquery.min.js"></script>
         <script src="js/jquery.widget.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
         <script src="js/metro.min.js"></script>
         <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min.js"></script>
+        <script src="js/smoke.js"> </script>
+        <script src="js/chatPanel.js"></script>
+        <script src="js/broadcastMessage.js"></script>
         <script src="js/formatLog.js"></script>
         <script src="js/formatList.js"></script>
         <script src="js/filesViewController.js"></script>
 
     </head>
     <body class="metro">
-        <nav class="navigation-bar dark">
+        <nav id="top_navigation_bar" class="navigation-bar dark">
             <nav class="navigation-bar-content">
                 <item class="element" id="user_name_header"> Hi, User</span></item>
                 <item class="element-divider"></item>
-                <item class="element" id="user_svn_address"> This is address </item>
                 <button class="element place-right" id="logout_btn">
-                    Logout
+                    Logout Portfolio
                 </button>
             </nav>
         </nav>
+        <div id="main_panel">
+            <!-- Show svn options -->
+            <div id="main_content">
+                <div id="svn_selection_panel" class="portfolio_content">
+                    <h3 id="add_svn_account_btn">
+                        Add SVN Account<i class="icon-plus-2 on-right"></i>
+                    </h3>
+                    <!-- Show svn list -->
+                    <div id="svn_list">
+                    </div>
+                    <!-- Show svn info -->
+                    <div id="svn_info">
+                        <h2 id="svn_info_address">  </h2>
+                        <br>
+                        <button id="connect_svn_btn">Connect</button>
+                        <button id="delete_svn_btn">Delete</button>
+                    </div>
+                </div>
 
-        <div id = "main_panel">
-            <!-- Files View
-                Show file list -->
-            <div id="files_view_container">
-                <div id="files_view">
+                <div id="file_view_div" class="portfolio_content">
+                    <!-- Files View
+                        Show file list -->
+                    <div id="files_view_container">
+                        <div id="files_view">
+                        </div>
+                    </div>
+                    <!-- File Informatino
+                    -->
+                    <div id="file_information_container">
+                        <div id="file_information">
+                            <h3 id="info_name">Name </h3> <br>
+                            <p id="info_path">Path</p>
+                            <p id="info_kind">Kind </p>
+                            <p id="info_size">Size</p>
+                            <!--
+                            <p id="info_commit_revision">Commit Revision</p>
+                            <p id="info_commit_author">Commit Author</p>
+                            <p id="info_commit_date">Commit Date</p>
+                            <p id="info_commit_msg">Commit Message</p>
+                            -->
+                        </div>
+                        <ul id="commit_list">
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="svn_create_page" class="portfolio_content">
+                    <h2 id="back_to_svn_selection_panel">
+                        <i id="back_to_svn_selection_icon" class="icon-arrow-left on-right"></i>
+                    </h2>
+                    <div id="create_svn_form">
+                            <fieldset>
+                                <legend>
+                                    Create SVN Account
+                                </legend>
+
+                                <!-- svn address -->
+                                <label> SVN Address</label>
+                                <div class="input-control text" data-role="input-control">
+                                    <input type="text" placeholder="enter your svn address here" value="" id="svn_address">
+                                    <button class="btn-clear" tabindex="-1" type="button"></button>
+                                </div>
+
+                                <!-- User Name -->
+                                <label> User Name</label>
+                                <div class="input-control text" data-role="input-control">
+                                    <input type="text" placeholder="enter your svn user name here" value="" id="svn_username">
+                                    <button class="btn-clear" tabindex="-1" type="button"></button>
+                                </div>
+
+                                <!-- User Password -->
+                                <label> User Password</label>
+                                <div class="input-control password" data-role="input-control">
+                                    <input type="password" placeholder="enter your svn password here" id="svn_password">
+                                    <button class="btn-reveal" tabindex="-1" type="button"></button>
+                                </div>
+
+                                <!-- login button -->
+                                <button id="create_svn_btn"> Create </button>
+                            </fieldset>
+                    </div>
                 </div>
             </div>
-            <!-- File Informatino
-            -->
-            <div id="file_information_container">
-                <div id="file_information">
-                    <h3 id="info_name">Name </h3> <br>
-                    <p id="info_path">Path</p>
-                    <p id="info_kind">Kind </p>
-                    <p id="info_size">Size</p>
+
+            <div id="friend_lists_div">
+                <h2> Friend Lists <i id="hide_friend_lists_icon" class="icon-arrow-down on-right"></i></h2>
+                <div id="friend_lists" class="listview">
                     <!--
-                    <p id="info_commit_revision">Commit Revision</p>
-                    <p id="info_commit_author">Commit Author</p>
-                    <p id="info_commit_date">Commit Date</p>
-                    <p id="info_commit_msg">Commit Message</p>
+                    <a href="#" class="list">
+                        <div class="list-content">
+                            <p> shd101wyy </p>
+                        </div>
+                    </a>
                     -->
                 </div>
-                <ul id="commit_list">
-                </ul>
+                <div>
+                    <h3 id="add_friend_btn">
+                        Add Friend<i class="icon-plus-2 on-right"></i>
+                    </h3>
+                </div>
             </div>
         </div>
+
+        <nav id="bottom_nagivation_bar" class="navigation-bar fixed-bottom dark">
+            <nav class="navigation-bar-content">
+
+                <div id="broadcase_message_div" class="input-control text" data-role="input-control">
+                    <input id="broadcase_message_input" type="text" placeholder="Broadcase your message to your friends here">
+                    <button class="btn-clear" tabindex="-1" type="button"></button>
+                </div>
+
+                <a id="show_friend_lists_icon" class="element place-right" href="#"><span class="icon-user"></span></a>
+            </nav>
+        </nav>
     </body>
     <script>
         var socket;  // global variable socket.
@@ -79,6 +174,7 @@
                   }
                   return output;
             }
+
             /**
              * shwo file list
              * @data is in format like
@@ -104,16 +200,263 @@
                 generateFileList(file_list_data); // generate file list tree;
             }
 
+            // user clicked a friend in friend lists
+            // start conversation
+            function clickFriend(){
+                var friend_user_name = this.id.slice(2);
+                if($(this).attr("online") === "true"){
+                    $("#room_" + friend_user_name).show();
+                }
+                else{
+                    $.Notify({
+                        caption: "Info",
+                        content: friend_user_name + " is offline. Cannot send message ",
+                        style: {background: "rgb(41, 62, 87)", color: "white"},
+                        timeout: 5000 // 5 seconds
+                    });
+                }
+            }
+
+            // user clicked svn in svn list.
+            function chooseSVN(){
+                var svn_addr = this.id;
+                $("#svn_info").show();
+                $("#connect_svn_btn").show();
+                $("#delete_svn_btn").show();
+                $("#svn_info_address").text(svn_addr);
+
+            }
 
             socket = io(); // initialize socketio.
             var data = parseURLParameters();
             user_name = data.user_name;
-            user_id = data.socket_id;
+            user_id = data.id;
             $("#user_name_header").text("Hi,  " + user_name);
+            $(".chat_panel").draggable();
 
-            socket.emit("get_data", user_id); // get log/list data from server.
+            // set top for friend_lists_div
+            $("#friend_lists_div").css({
+                top: $("#top_navigation_bar").height(),
+                height: $("body").height() - $("#top_navigation_bar").height()*2 - 50
+            });
 
-            socket.on("get_data_success", function(data){
+            // show svn selection page
+            $("#svn_selection_panel").show();
+
+            // hide friend lists.
+            //$("#friend_lists_div").hide();
+
+            // tell user we are now in user_panel
+            socket.emit("user_in_panel_page", [user_name, user_id]);
+
+            // receive user data from server
+            socket.on("receive_user_data_from_server", function(user_data){
+                var friend_lists = $("#friend_lists");
+                var online_friends = user_data.online_friends;
+                var friends = user_data.friends;
+                var svn = user_data.svn;
+                /*
+                <a href="#" class="list">
+                    <div class="list-content">
+                        <p> shd101wyy </p>
+                    </div>
+                </a>
+                 */
+                // update friend lists
+                for(var i = 0; i < friends.length; i++){
+                    var f = $("<a></a>").addClass("list my_list_content").attr({"id": "__" + friends[i], "online": false});
+                    if (friends[i] in online_friends){ // this user is online, so change it color
+                        f.css({background: "#1e6ca1"});
+                        f.attr("online", true);
+                    }
+                    var d = $("<div></div>").addClass("list-content");
+                    var content = "<p class='friend_list_user_name'>" + friends[i] + "</p>";
+                    d.html(content);
+                    f.append(d);
+                    friend_lists.append(f);
+
+                    f.bind("click", clickFriend);
+
+                    // create chat panel
+                    var chat_panel = createChatPanel(0, 0, friends[i]);
+                    chat_panel.hide();
+                }
+
+                /*
+                <div class="panel" data-role="panel">
+                    <div class="panel-header">
+                        ...
+                    </div>
+                    <div class="panel-content">
+                        ...
+                    </div>
+                </div>
+                 */
+                // update svn list
+                for(i = 0; i < svn.length; i++){
+                    var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn[i]});
+                    var panel_content = $("<p></p>").text(svn[i]);
+
+                    panel.append(panel_content);
+                    $("#svn_list").append(panel);
+
+                    panel.bind("click", chooseSVN);
+                }
+            });
+
+            // click add friend button
+            // add friend
+            $("#add_friend_btn").click(function(){
+                smoke.prompt("Enter your friend's user name here", function(friend_user_name){
+                    if(friend_user_name)
+                        socket.emit("add_friend", friend_user_name); // send request to server
+                }, {
+                    ok: "Add",
+                    cancel: "No",
+                    reverseButtons: true
+                });
+            });
+
+            socket.on("no_such_user", function(friend_user_name){
+                var not = $.Notify({
+                    caption: "Info",
+                    content: "User " + friend_user_name + " doesn't exist.",
+                    style: {background: "#a7604a", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+            });
+
+            socket.on("request_error", function(data){
+                console.log("ERRO!");
+                var not = $.Notify({
+                    caption: "Error",
+                    content: data,
+                    style: {background: "#a7604a", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+            });
+
+            // add friend request sent
+            socket.on("add_friend_request_sent", function(friend_user_name){
+                var not = $.Notify({
+                    caption: "Info",
+                    content: "Friend request sent to " + friend_user_name,
+                    style: {background: "#3e8fc5", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+            });
+
+            // receive friend request from friend
+            socket.on("receive_friend_request", function(friend_user_name){
+                smoke.confirm(friend_user_name + " wants to add you as friend! ", function(e){
+                    if(e){ // accept
+                        socket.emit("accept_friend_request", [user_name, friend_user_name]);
+                    }
+                }, {
+                    ok: "Accept",
+                    cancel: "Reject",
+                    reverseButtons: true
+                });
+            });
+
+            // friend online
+            socket.on("friend_online", function(friend_user_name){
+                var not = $.Notify({
+                    caption: "Info",
+                    content: friend_user_name + " is now online",
+                    style: {background: "#70ad59", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+                $("#__" + friend_user_name).css({background: "#1e6ca1", color: "white"}).attr("online", true);
+            });
+
+            // friend offline
+            socket.on("friend_offline", function(friend_user_name){
+                var not = $.Notify({
+                    caption: "Info",
+                    content: friend_user_name + " is now offline",
+                    style: {background: "rgb(41, 62, 87)", color: "white"},
+                    timeout: 5000 // 5 seconds
+                });
+                $("#__" + friend_user_name).css({background: "#454545"}).attr("online", false);
+            });
+
+            // add friend to list
+            socket.on("add_friend_list_item", function(friend_user_name){
+                // update listview
+                var f = $("<a></a>").addClass("list my_list_content").attr({"id": "__" + friend_user_name, online:"true"}).css({background: "#1e6ca1"});
+                var d = $("<div></div>").addClass("list-content");
+                var content = "<p class='friend_list_user_name'>" + friend_user_name + "</p>";
+                d.html(content);
+                f.append(d);
+                $("#friend_lists").append(f);
+
+                // create chat panel
+                var chat_panel = createChatPanel(0, 0, friend_user_name);
+                chat_panel.hide();
+            });
+
+            // receive message from friend
+            socket.on("user_receive_message_from_friend", function(data){
+                var friend_name = data[0];
+                var message = data[1];
+                // console.log("receive " + message + " from " + friend_name);
+                $("#room_"+friend_name).show();
+                addFriendMessage($("#room_"+friend_name), friend_name, message);
+            });
+
+            // receive broadcase message from friends
+            socket.on("receive_broadcast_message", function(data){
+                var from_user = data[0];
+                var message = data[1];
+                var not = $.Notify({
+                    caption: "Broadcast Message",
+                    content: from_user + ": " + message,
+                    style: {background: "#c37522", color: "white"},
+                    timeout: 10000 // 10 seconds
+                });
+            });
+
+            // create svn account successfully
+            socket.on("create_svn_account_successfully", function(svn_address){
+                // go back to svn selection page
+                $("#svn_create_page").hide();
+                $("#svn_selection_panel").show();
+
+                $.Notify({
+                    caption: "SVN account created successfully",
+                    content: "Addr : " + svn_address,
+                    style: {background: "#2196c4", color: "white"},
+                    timeout: 10000 // 10 seconds
+                });
+
+                var panel = $("<div></div>").addClass("svn_list_item").attr({"id": svn_address});
+                var panel_content = $("<p></p>").text(svn_address);
+
+                panel.append(panel_content);
+                $("#svn_list").append(panel);
+
+                panel.bind("click", chooseSVN);
+            });
+
+            // remove svn account successfully
+            socket.on("svn_account_delete_successfully", function(svn_address){
+                $.Notify({
+                    caption: "SVN account remove successfully",
+                    content: "Addr : " + svn_address,
+                    style: {background: "#2196c4", color: "white"},
+                    timeout: 10000 // 10 seconds
+                });
+                $("#"+svn_address).remove();
+                $("#svn_info").hide();
+            });
+
+            // connect to svn successfully
+            socket.on("connect_to_svn_successfully", function(data){
+                $("#svn_selection_panel").hide();
+                $("#svn_create_page").hide();
+                $("#file_view_div").show();
+                $("#logout_btn").text("Logout SVN");
                 initFileList(data);
             });
 
@@ -122,8 +465,80 @@
              * TODO: delete user id from data base
              */
             $("#logout_btn").click(function(){
-                window.location.href = "./index.html";
+                if ($("#logout_btn").text() === "Logout SVN"){
+                    $("#logout_btn").text("Logout Portfolio");
+                    $("#svn_selection_panel").show();
+                    $("#svn_create_page").hide();
+                    $("#file_view_div").hide();
+                }
+                else{
+                    window.location.href = "./index.html";
+                }
             });
+
+            // hide friend lists
+            $("#hide_friend_lists_icon").click(function(){
+                $("#friend_lists_div").hide("slide", {direction: "down"}, 500);
+            });
+
+            // show friend lists
+            $("#show_friend_lists_icon").click(function(){
+                $("#friend_lists_div").toggle("slide", {direction: "down"}, 500);
+            });
+
+            // broadcast input
+            $("#broadcase_message_input").on('keypress', function (event) {
+                 if(event.which == '13'){
+                    var input = $("#broadcase_message_input");
+                    //Disable textbox to prevent multiple submit
+                    input.attr("disabled", "disabled");
+                    //Do Stuff, submit, etc..
+                    if(input.val().trim().length === 0) return;
+                    broadcastMessage(user_name, input.val());
+
+                    // clear buffer
+                    input.val("");
+                    // remove diable
+                    input.removeAttr("disabled");
+                 }
+            });
+
+            // click add svn account button
+            $("#add_svn_account_btn").click(function(){
+                $("#svn_selection_panel").hide();
+                $("#svn_create_page").show();
+            });
+
+            // back to svn selection page
+            $("#back_to_svn_selection_panel").click(function(){
+                $("#svn_create_page").hide();
+                $("#svn_selection_panel").show();
+            });
+
+            // create svn
+            $("#create_svn_btn").click(function(){
+                var svn_address = $("#svn_address").val();
+                var svn_username = $("#svn_username").val();
+                var svn_password = $("#svn_password").val();
+                socket.emit("create_svn", [svn_address, svn_username, svn_password, user_name]);
+            });
+
+            // connect svn
+            $("#connect_svn_btn").click(function(){
+                socket.emit("user_connect_to_svn", [user_name, $("#svn_info_address").text()]);
+                $.Notify({
+                    caption: "Connecting to SVN. Please wait!",
+                    content: "Addr : " + svn_address,
+                    style: {background: "#2196c4", color: "white"},
+                    timeout: 10000 // 10 seconds
+                });
+            });
+
+            // remove svn
+            $("#delete_svn_btn").click(function(){
+                socket.emit("remove_svn_account", [user_name, $("#svn_info_address").text()]);
+            });
+
         });
     </script>
 </html>

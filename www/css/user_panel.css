@@ -85,7 +85,7 @@ body{
 .portfolio_content{
     position: absolute;
     top: 10%;
-    background: #f0e0e0;
+    /* background: #f0e0e0; */
     padding: 20px;
     width: 90%;
     height: 80%;

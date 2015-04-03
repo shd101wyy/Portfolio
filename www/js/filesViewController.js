@@ -116,7 +116,7 @@ function clickFileTile(file_data){
     var file_name = file_data.single_name;
 
     // show file content
-    socket.emit("query_file", {file_name: file_data.name, user_id: user_id});
+    socket.emit("query_file", {file_name: file_data.name, username: user_name});
 
     // get file content
     socket.on("query_file_success", function(data){

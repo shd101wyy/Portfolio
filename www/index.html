@@ -168,7 +168,7 @@
             socket.on("login_success", function(data){
                 console.log("Login success: " + data);
                 // TODO: 验证用户
-                window.location.href = "./user_panel.html?user_name="+user_name+"&id="+data; //+"&socket_id="+data;
+                window.location.href = "./portfolio.html?user_name="+user_name+"&id="+data; //+"&socket_id="+data;
             });
 
             // user already login
