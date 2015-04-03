@@ -43,12 +43,12 @@ function createCommentElement(msg,
                         .addClass("comment_item")
                         .css({
                             "margin-left": left
-                        });
-    comment_item.attr("id", comment_id ? comment_id : guid()); // bind unique id
+                        })
+                        .attr({"id": comment_id ? comment_id : guid(), plus: "false"}); // bind unique id
     var span = $("<span></span>");
     var username_span = $("<span></span>");
     var comment_content_span = $("<span></span>").addClass("comment_content").text(msg);
-    var collapsed_btn = $("<i></i>").addClass("icon-minus on-left");
+    var collapsed_btn = $("<i></i>").addClass("icon-minus on-left collapsed_btn");
     username_span.append(collapsed_btn);
     username_span.append("    " + poster_name + " :");
     span.append(username_span);
@@ -62,6 +62,11 @@ function createCommentElement(msg,
         console.log(parent);
         */
         parent.append(comment_item); // append element right after parent
+
+        // parent now its hide children, so this child has to be hidden as well.
+        if(parent.attr("plus") === "true"){
+            comment_item.hide();
+        }
     }
     else{
         $("#comment_container").append(comment_item);
@@ -75,9 +80,11 @@ function createCommentElement(msg,
         // change icon for collapsed_btn
         if (collapsed_btn.hasClass("icon-minus")){
             collapsed_btn.removeClass("icon-minus").addClass("icon-plus");
+            comment_item.attr("plus", "true");
         }
         else{
             collapsed_btn.removeClass("icon-plus").addClass("icon-minus");
+            comment_item.attr("plus", "false");
         }
         comment_item.children("div").toggle();
     });

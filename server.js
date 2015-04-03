@@ -251,14 +251,17 @@ io.on("connection", function(socket){
         var svn_addr = data[1];
         //console.log("user connect to " + svn_addr);
         db_SVN.find({svn_addr: svn_addr}, function(error, data){
-            if (error || !data || data.length !== 1){
+            if (error){
                 socket.emit("request_error", "Failed to connect to database");
+            }
+            else if (!data || data.length !== 1){
+                socket.emit("request_error", "Addr: " + svn_addr + " has been removed.<br>Please refresh your page.");
             }
             else{
                 // TODO: decrypt svn password
                 var svn_username = data[0].svn_username;
                 var svn_password = decrypt(data[0].svn_password); // decrypt password
-                var svn_addr = data[0].svn_addr;
+                //var svn_addr = data[0].svn_addr;
 
                 var svn_user = new User(svn_username, svn_password, svn_addr);
 
