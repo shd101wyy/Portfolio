@@ -236,7 +236,8 @@
                 }
 
                 $("#svn_info_username").text($(this).attr("username"));
-                $("#svn_info_address").text(svn_addr);
+                $("#svn_info_address").text(this.id);
+                $("#ress").text(svn_addr);
 
             }
 
@@ -558,7 +559,7 @@
                     caption: "Connecting to SVN. Please wait!",
                     content: "Addr : " + $("#svn_info_address").text(),
                     style: {background: "#2196c4", color: "white"},
-                    timeout: 10000 // 10 seconds
+                    timeout: 5000 // 5 seconds
                 });
             });
 

@@ -115,9 +115,22 @@ function clickFileTile(file_data){
 
     var file_name = file_data.single_name;
 
+    if (file_name.endsWith(".pdf")){
+        // open pdf
+        /*
+        <iframe src="http://docs.google.com/gview?url=http://path.com/to/your/pdf.pdf&embedded=true"
+style="width:600px; height:500px;" frameborder="0"></iframe>
+         */
+        console.log(file_data);
+        var iframe = $("<iframe></iframe>").attr({
+            src: "http://docs.google.com/gview?url=" + "" + "&embedded=true"
+        }).css({"width": $("#files_view").width()-$("#back_tile").width()-30, "height": "90%"});
+        $("#files_view").append(image_div);
+    }
+    else{
     // show file content
-    socket.emit("query_file", {file_name: file_data.name, svn_addr: $("#svn_info_address").text()});
-
+        socket.emit("query_file", {file_name: file_data.name, svn_addr: $("#svn_info_address").text()});
+    }
     // get file content
     socket.on("query_file_success", function(data){
         // TODO: Support PDF
